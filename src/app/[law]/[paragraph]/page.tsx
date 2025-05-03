@@ -4,6 +4,8 @@ import { parse } from "node-html-parser";
 
 import Navigate from "@/app/_components/Navigate";
 import KeyboardNavigation from "./KeyboardNavigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const DOMAIN = "https://www.gesetze-im-internet.de";
 
@@ -64,9 +66,9 @@ export default async function Display({ params }: DisplayProps) {
       <div className="mx-auto w-full" style={{ maxWidth: "700px" }}>
         <Navigate law={law} paragraph={paragraph} />
         <KeyboardNavigation law={law} backward={backward} forward={forward} />
-        <div className="mx-auto w-full rounded-lg bg-white px-5 pt-5 pb-10 text-gray-800 shadow-lg">
-          <div className="flex w-full justify-between pt-1 pb-5">
-            <div>
+        <Card className="mx-auto w-full">
+          <CardHeader>
+            <CardTitle>
               {headers.map((header) => (
                 <h2
                   className="text-lg"
@@ -74,35 +76,37 @@ export default async function Display({ params }: DisplayProps) {
                   key={header}
                 />
               ))}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-10 w-full">
+              {content.map((content) => (
+                <div
+                  className="text-gray-600px-5 m-2 text-sm"
+                  dangerouslySetInnerHTML={{ __html: content }}
+                  key={content}
+                />
+              ))}
             </div>
-          </div>
-          <div className="mb-10 w-full">
-            {content.map((content) => (
-              <div
-                className="text-gray-600px-5 m-2 text-sm"
-                dangerouslySetInnerHTML={{ __html: content }}
-                key={content}
-              />
-            ))}
-          </div>
-          <div className="w-full">
-            {footnotes.map((footnote) => (
-              <div
-                className="text-md text-gray-600"
-                dangerouslySetInnerHTML={{ __html: footnote }}
-                key={footnote}
-              />
-            ))}
-          </div>
-          <div className="flex w-full justify-between">
-            <NavigationButton law={law} paragraph={backward}>
-              Zurück
-            </NavigationButton>
-            <NavigationButton law={law} paragraph={forward}>
-              Vor
-            </NavigationButton>
-          </div>
-        </div>
+            <div className="w-full">
+              {footnotes.map((footnote) => (
+                <div
+                  className="text-md text-gray-600"
+                  dangerouslySetInnerHTML={{ __html: footnote }}
+                  key={footnote}
+                />
+              ))}
+            </div>
+            <div className="flex w-full justify-between">
+              <NavigationButton law={law} paragraph={backward}>
+                Zurück
+              </NavigationButton>
+              <NavigationButton law={law} paragraph={forward}>
+                Vor
+              </NavigationButton>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
@@ -117,12 +121,9 @@ interface NavigationButtonProps {
 function NavigationButton({ law, paragraph, children }: NavigationButtonProps) {
   if (!law || !paragraph) return <div />;
   return (
-    <Link
-      href={`/${law}/${paragraph}`}
-      className="focus:shadow-outline-indigo rounded-md border border-transparent px-1 py-1 text-sm leading-2 font-medium hover:bg-indigo-500 hover:text-white focus:border-indigo-700 focus:outline-none active:bg-indigo-700"
-    >
-      {children}
-    </Link>
+    <Button variant="outline" asChild>
+      <Link href={`/${law}/${paragraph}`}>{children}</Link>
+    </Button>
   );
 }
 
