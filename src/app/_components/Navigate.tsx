@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useRouter } from "next/navigation";
 
-function processEntry(string) {
+function processEntry(string: string) {
   const parts = string.split("§");
 
   if (parts.length === 1) {
@@ -18,17 +18,26 @@ function processEntry(string) {
   return { law: parts[0], paragraph: parts[parts.length - 1] };
 }
 
-function NavigateForm({ law, setOpen }) {
+// Define prop types
+interface NavigateFormProps {
+  law: string;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  paragraph?: string;
+}
+
+function NavigateForm({ law, setOpen, paragraph }: NavigateFormProps) {
   const router = useRouter();
 
   return (
     <div>
       <form
-        onSubmit={(event) => {
+        onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
-
+          const target = event.target as typeof event.target & {
+            paragraph: { value: string };
+          };
           const { law: newLaw, paragraph: newParagraph } = processEntry(
-            event.target.paragraph.value,
+            target.paragraph.value,
           );
 
           if (!newParagraph) {
@@ -39,7 +48,7 @@ function NavigateForm({ law, setOpen }) {
           setOpen(false);
 
           // route to new paragraph
-          router.push(`/${newLaw || law}/${newParagraph}`);
+          router.push(`/${newLaw ?? law}/${newParagraph}`);
         }}
       >
         <input
@@ -55,7 +64,12 @@ function NavigateForm({ law, setOpen }) {
   );
 }
 
-export default function Navigate({ law, paragraph }) {
+interface NavigateProps {
+  law: string;
+  paragraph?: string;
+}
+
+export default function Navigate({ law, paragraph }: NavigateProps) {
   const [open, setOpen] = useState(false);
 
   useHotkeys(
