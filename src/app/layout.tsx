@@ -7,8 +7,8 @@ import { TRPCReactProvider } from "@/trpc/react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Gesetze im Internet",
-  description: "Gesetze im Internet - Nur angenehmer!",
+  title: "Gesetze im Internet 2.0",
+  description: "Gesetze im Internet 2.0 - Nur angenehmer!",
   // icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
@@ -41,7 +41,12 @@ export default function RootLayout({
               <div className="mx-auto max-w-7xl px-4 sm:px-6">
                 <div className="flex items-center justify-between py-3 md:justify-start md:space-x-10">
                   <div className="flex w-0 flex-1">
-                    <Link href="/">Gesetze im Internet - Nur angenehmer!</Link>
+                    <Link
+                      href="/"
+                      className="text-xl font-bold tracking-tight text-gray-900"
+                    >
+                      Gesetze 2.0
+                    </Link>
                   </div>
                 </div>
               </div>
