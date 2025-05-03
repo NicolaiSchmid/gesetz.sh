@@ -1,0 +1,73 @@
+---
+description: Guidelines for installing and using shadcn components in the frontend package
+globs: packages/frontend/src/components/ui/*.tsx,packages/frontend/src/app/**/*.tsx
+alwaysApply: false
+---
+
+# Installing shadcn Components
+
+## Rule: Use shadcn CLI for Component Installation
+
+When adding new shadcn components to the project, always use the official CLI tool and follow these guidelines.
+
+### Installation Process:
+
+1. Navigate to the frontend package directory:
+```bash
+cd packages/frontend
+```
+
+2. Use the shadcn CLI to add components:
+```bash
+pnpm dlx shadcn@latest add <component-name>
+```
+
+Note: Do NOT use the deprecated `shadcn-ui` package.
+
+### Example Component Installations:
+
+```bash
+# Installing tabs component
+pnpm dlx shadcn@latest add tabs
+
+# Installing other common components
+pnpm dlx shadcn@latest add button
+pnpm dlx shadcn@latest add card
+pnpm dlx shadcn@latest add dialog
+```
+
+### Component Location:
+
+- Components are automatically installed in `src/components/ui/`
+- Each component is installed in its own file (e.g., `tabs.tsx`, `button.tsx`)
+
+### Usage Guidelines:
+
+1. Import components from the ui directory:
+```typescript
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+```
+
+2. Components are styled with Tailwind CSS and can be customized using className props:
+```typescript
+<Tabs className="w-full">
+  <TabsList className="grid grid-cols-3">
+    <TabsTrigger value="tab1">Tab 1</TabsTrigger>
+  </TabsList>
+</Tabs>
+```
+
+### Why:
+
+- Ensures consistent component installation
+- Maintains project structure
+- Provides type-safe components
+- Follows shadcn's best practices
+- Avoids deprecated package usage
+
+### Validation:
+
+- Component is installed in correct directory
+- TypeScript types are properly generated
+- Component is importable from `@/components/ui`
+- Tailwind classes are working correctly

@@ -1,0 +1,84 @@
+---
+description: new MDC rules must be created in the .cursor/rules directory as separate files with .mdc extension
+globs: **/*.mdc
+alwaysApply: false
+---
+# MDC Rule Location Specification
+
+This rule instructs Cursor IDE to create all new MDC rules in the `.cursor/rules` directory.
+
+## Rule Details
+
+- All new MDC rules must be created as separate files in the `.cursor/rules` directory
+- Each rule file should have a `.mdc` extension
+- Rule files should be named descriptively to indicate their purpose using a dashcase scheme (eg: new-rules.mdc, casing-of-locales.mdc, refactoring-locales.mdc)
+- No nested rule directories are allowed
+
+## Frontmatter Requirements
+
+Each rule file must start with a YAML frontmatter section. There are three distinct formats depending on how the rule should be applied:
+
+### 1. Agent-Requested Rules
+For rules that should only be applied when explicitly requested by the agent:
+```yaml
+---
+description: A clear description of when this rule should be invoked
+alwaysApply: false
+---
+```
+Example:
+```yaml
+---
+description: After changes, stage files and create conventional commits with appropriate scoping
+alwaysApply: false
+---
+```
+
+### 2. Auto-Attached Rules
+For rules that should be automatically attached when specific file types are involved:
+```yaml
+---
+globs: file-pattern-1,file-pattern-2
+alwaysApply: false
+---
+```
+Example:
+```yaml
+---
+globs: *.tsx,*.js
+alwaysApply: false
+---
+```
+
+### 3. Always Applied Rules
+For rules that should always be applied in every conversation:
+```yaml
+---
+alwaysApply: true
+---
+```
+
+## Implementation
+
+When creating new MDC rules:
+
+1. Always place them in the `.cursor/rules` directory
+2. Create one rule per file
+3. Use clear, descriptive filenames
+4. Follow the `.mdc` file extension convention
+5. Choose the appropriate frontmatter format based on the rule's intended usage
+
+## Examples
+
+✅ Correct:
+
+- `.cursor/rules/formatting.mdc`
+- `.cursor/rules/linting.mdc`
+- `.cursor/rules/documentation.mdc`
+
+❌ Incorrect:
+
+- `rules/formatting.mdc` (wrong location)
+- `.cursor/rules/subfolder/rule.mdc` (no nested directories)
+- `formatting.txt` (wrong extension)
+- `.cursor/rules/rule.mdc` (with mixed/incorrect frontmatter format)

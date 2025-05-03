@@ -1,0 +1,165 @@
+---
+description: After changes, stage files and create conventional commits with appropriate scoping
+alwaysApply: false
+---
+
+# Commit Convention Guidelines
+
+## Rule: Conventional Commits with Scoped Changes
+
+After making changes to the codebase, always stage the changes and create a commit following the conventional commit format with appropriate scoping.
+
+### Important Note on File Paths:
+When staging files with special characters (like square brackets `[]` or spaces), always wrap the paths in single quotes or escape the special characters:
+
+```bash
+# Using single quotes (preferred)
+git add 'src/app/[route]/page.tsx'
+
+# Or escaping special characters
+git add src/app/\[route\]/page.tsx
+```
+
+### Commit Format:
+
+```
+type(scope): description
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Note:** Always use full lowercase for the entire commit message, including type, scope, and description.
+
+### Types:
+
+- `feat`: New feature
+- `fix`: Bug fix
+- `refactor`: Code change that neither fixes a bug nor adds a feature
+- `style`: Changes that don't affect code meaning (formatting, missing semi-colons, etc)
+- `docs`: Documentation only changes
+- `test`: Adding missing tests or correcting existing tests
+- `chore`: Changes to the build process or auxiliary tools
+- `perf`: Performance improvements
+
+### Scope Conventions:
+
+1. Frontend-only changes:
+
+   ```
+   feat(frontend:button): add new primary variant
+   fix(frontend:locale): correct German translation for settings
+   style(frontend:chat): improve message spacing
+   ```
+
+2. Backend-only changes:
+
+   ```
+   feat(backend:auth): add new OAuth provider
+   fix(backend:api): correct pagination in chat endpoint
+   perf(backend:indexing): optimize document processing
+   ```
+
+3. Rule changes:
+
+   ```
+   chore(rules:commit-convention): add new commit convention rule
+   chore(rules:locale-casing): update title case guidelines
+   chore(rules:new-rules): add front-matter requirements
+   ```
+
+4. Small, specific changes:
+
+   ```
+   fix(frontend:costs): correct price calculation display
+   feat(backend:sharepoint): add new file type support
+   ```
+
+5. Broader changes affecting multiple components:
+
+   ```
+   feat(chat): implement real-time messaging
+   refactor(auth): modernize authentication flow
+   ```
+
+6. Feature-specific changes across layers:
+   ```
+   feat(chat:sharepoint): add SharePoint file sharing in chat
+   fix(costs:billing): correct usage calculation and display
+   ```
+
+### Examples:
+
+✅ Good commits:
+
+```
+feat(frontend:locale): add french translations
+fix(backend:api): correct message count in stats
+refactor(chat): modernize messaging architecture
+feat(frontend:costs): add new pricing display
+fix(chat:sharepoint): correct file permission handling
+chore(rules:locale-refactoring): add comprehensive search requirement
+```
+
+❌ Bad commits:
+
+```
+fix stuff
+update code
+frontend changes
+(chat) new features
+update rule file
+Feat(component): Add New Feature  # Contains uppercase letters
+```
+
+### Implementation:
+
+1. Before Staging:
+
+   - Check that staging area is empty using `git status`
+   - If staging is not empty, commit or stash existing changes first
+   - Review the diff history to identify specific changes made
+
+2. Staging Changes:
+
+   - Only stage the specific lines/files that were modified in the current change
+   - Use `git add -p` for partial staging when needed
+   - Verify staged changes with `git diff --staged`
+
+3. After Making Changes:
+
+   - Review the changed files to understand the scope
+   - Group related changes logically
+   - Stage only the relevant changes
+
+4. Determine the Scope:
+
+   - Is it frontend-only? Use `frontend:component`
+   - Is it backend-only? Use `backend:component`
+   - Is it a tiny, specific change? Use specific scope
+   - Is it a broader change? Use feature name
+   - Does it cross boundaries? Use `feature:subfeature`
+
+5. Create the Commit:
+   - Choose appropriate type
+   - Apply scope convention
+   - Write clear, concise description
+   - Add body for complex changes
+   - Add breaking change footer if needed
+
+### Why:
+
+- Maintains clear change history
+- Makes changes easily traceable
+- Facilitates automated changelog generation
+- Helps with code review process
+- Enables better release management
+
+### Validation:
+
+- Commit message follows conventional format
+- Scope accurately reflects the changes
+- Description is clear and concise
+- Related changes are grouped together
+- Breaking changes are properly marked

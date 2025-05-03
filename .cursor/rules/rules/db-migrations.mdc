@@ -1,0 +1,50 @@
+---
+description: when the user asks to migrate the db, use this rule
+globs: 
+alwaysApply: false
+---
+# Database Migration Process
+
+This rule outlines the steps for handling database migrations in the TexTAiger application.
+
+## Step 1: Generate Migration Files
+
+When you make changes to the database schema (in `src/server/db/schema.ts`), you need to generate migration files:
+
+```bash
+yarn db:generate
+```
+
+This will create new migration files in the `drizzle/` directory.
+
+## Step 2: Apply Migrations (Optional)
+
+Offer to apply the migrations to the database:
+
+```bash
+yarn db:migrate
+```
+
+
+## Step 3: Commit Migration Files
+
+After generating (and optionally applying) the migrations, the following files should be committed:
+
+1. The SQL migration file(s) in `drizzle/` (e.g., `drizzle/0001_something.sql`)
+2. The snapshot file(s) in `drizzle/meta/` (e.g., `drizzle/meta/0001_snapshot.json`)
+3. The journal file at `drizzle/meta/_journal.json`
+4. The modified schema file at `src/server/db/schema.ts`
+
+Use a conventional commit message (see the rule) following the pattern:
+
+```bash
+git add drizzle/ src/server/db/schema.ts
+git commit -m "fix(db): brief description of the schema change"
+```
+
+Where the type can be:
+- `fix` - if fixing a database issue
+- `feat` - if adding new tables/columns
+- `refactor` - if restructuring the schema
+
+Always include a brief description of what changed in the schema. 
