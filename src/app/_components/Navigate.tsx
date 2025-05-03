@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 function processEntry(string) {
   const parts = string.split("§");
@@ -26,7 +28,7 @@ function NavigateForm({ law, setOpen }) {
           event.preventDefault();
 
           const { law: newLaw, paragraph: newParagraph } = processEntry(
-            event.target.paragraph.value
+            event.target.paragraph.value,
           );
 
           if (!newParagraph) {
@@ -46,7 +48,7 @@ function NavigateForm({ law, setOpen }) {
           name="paragraph"
           placeholder="Shortcut"
           autoFocus
-          className="w-full max-auto p-2 mb-2 shadow-lg rounded-lg focus:outline-none focus:ring-2 ring-blue-200 text-gray-800"
+          className="max-auto mb-2 w-full rounded-lg p-2 text-gray-800 shadow-lg ring-blue-200 focus:ring-2 focus:outline-none"
         />
       </form>
     </div>
@@ -64,7 +66,7 @@ export default function Navigate({ law, paragraph }) {
 
       if (!open) setOpen(true);
     },
-    [open, setOpen]
+    [open, setOpen],
   );
 
   if (open)
