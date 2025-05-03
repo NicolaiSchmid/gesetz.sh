@@ -9,13 +9,6 @@ import { Button } from "@/components/ui/button";
 
 const DOMAIN = "https://www.gesetze-im-internet.de";
 
-interface DisplayProps {
-  params: {
-    law: string;
-    paragraph: string;
-  };
-}
-
 function getLinkHref(element: Element | null): string | undefined {
   if (!element) return undefined;
 
@@ -23,8 +16,15 @@ function getLinkHref(element: Element | null): string | undefined {
   return originalLink?.match(/__(.+)\.html/)?.[1] ?? undefined;
 }
 
-export default async function Display({ params }: DisplayProps) {
-  const { law, paragraph } = params;
+export default async function Display({
+  params,
+}: {
+  params: Promise<{
+    law: string;
+    paragraph: string;
+  }>;
+}) {
+  const { law, paragraph } = await params;
 
   const response = await fetch(
     `${DOMAIN}/${law.toLowerCase()}/__${paragraph.toLowerCase()}.html`,
