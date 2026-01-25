@@ -20,13 +20,24 @@ export default async function Home() {
     <main className="mx-auto max-w-4xl px-4 py-10">
       <div className="mb-10">
         <h1 className="mb-2 text-3xl font-bold">Gesetze 2.0</h1>
-        <p className="text-gray-600">
-          Schnelle Navigation durch deutsche Gesetze. Drücke{" "}
-          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 text-sm font-semibold">
-            ⌘ K
-          </kbd>{" "}
-          für Quick-Navigation.
+        <p className="mb-4 text-gray-600">
+          Schnelle Navigation durch deutsche Gesetze.
         </p>
+        <ul className="list-inside list-disc space-y-1 text-gray-600">
+          <li>
+            Drücke{" "}
+            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 text-sm font-semibold">
+              ⌘ K
+            </kbd>{" "}
+            /{" "}
+            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 text-sm font-semibold">
+              Ctrl+K
+            </kbd>{" "}
+            für Quick-Navigation
+          </li>
+          <li>Kompakte, kurze URLs</li>
+          <li>Fokus auf Lesbarkeit und Effizienz</li>
+        </ul>
       </div>
 
       <h2 className="mb-4 text-xl font-semibold">
@@ -58,12 +69,12 @@ export default async function Home() {
                     href={`/${law.code}/1`}
                     className="block rounded p-2 hover:bg-gray-50"
                   >
-                    <span className="font-medium">
-                      {law.code.toUpperCase()}
-                    </span>
-                    <span className="ml-2 text-sm text-gray-600">
-                      {law.title}
-                    </span>
+                    <div className="font-medium">{law.title}</div>
+                    {law.fullTitle && law.fullTitle !== law.title && (
+                      <div className="text-sm text-gray-500">
+                        {law.fullTitle}
+                      </div>
+                    )}
                   </Link>
                 </li>
               ))}
