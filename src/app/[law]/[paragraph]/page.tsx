@@ -15,7 +15,7 @@ const REQUEST_HEADERS: Record<string, string> = {
   "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
 };
 
-const paragraphReferenceRegex = /(§{1,2})\s*(\d+[a-zA-Z]*)/g;
+const paragraphReferenceRegex = /(§{1,2}|&#167;)\s*(\d+[a-zA-Z]*)/g;
 
 function linkifyParagraphReferences(htmlContent: string, law: string) {
   return htmlContent.replace(
@@ -23,7 +23,9 @@ function linkifyParagraphReferences(htmlContent: string, law: string) {
     (match: string, symbol: string, paragraph: string) => {
       if (!paragraph) return match;
       const slug = paragraph.toLowerCase();
-      const label = `${symbol} ${paragraph}`.trim();
+      // Normalize symbol to § for display
+      const displaySymbol = symbol === "&#167;" ? "§" : symbol;
+      const label = `${displaySymbol} ${paragraph}`.trim();
       return `<a href="/${law}/${slug}" class="text-blue-600 underline hover:text-blue-800">${label}</a>`;
     },
   );
