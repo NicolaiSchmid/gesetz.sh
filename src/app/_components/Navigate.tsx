@@ -36,11 +36,12 @@ function buildAliasEntries(lawDirectory: LawDirectoryEntry[]): AliasEntry[] {
     const aliasTokens = new Set<string>();
     aliasTokens.add(law.code);
     aliasTokens.add(law.title);
+    if (law.fullTitle) aliasTokens.add(law.fullTitle);
     if (law.description) aliasTokens.add(law.description);
 
-    const keywords = `${law.title} ${law.description ?? ""}`
-      .split(/[^a-zA-Zäöüß0-9]+/i)
-      .filter(Boolean);
+    // Extract keywords from fullTitle and description
+    const textToSplit = `${law.fullTitle ?? ""} ${law.description ?? ""}`;
+    const keywords = textToSplit.split(/[^a-zA-Zäöüß0-9]+/i).filter(Boolean);
 
     for (const keyword of keywords) {
       aliasTokens.add(keyword);
@@ -157,7 +158,12 @@ export default function Navigate({
   const lawMatches = React.useMemo(() => {
     const filtered = lawDirectory.filter((lawMeta) => {
       if (!normalizedTextQuery) return true;
-      const tokens = [lawMeta.code, lawMeta.title, lawMeta.description ?? ""];
+      const tokens = [
+        lawMeta.code,
+        lawMeta.title,
+        lawMeta.fullTitle ?? "",
+        lawMeta.description ?? "",
+      ];
       return tokens.some((token) =>
         token.toLowerCase().includes(normalizedTextQuery),
       );

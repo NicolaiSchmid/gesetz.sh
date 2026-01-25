@@ -44,7 +44,6 @@ function parseLawEntries(html) {
 
   for (const node of nodes) {
     const link = node.querySelector("a");
-    const description = node.querySelector("span");
     if (!link) continue;
 
     const href = link.getAttribute("href") ?? "";
@@ -53,15 +52,26 @@ function parseLawEntries(html) {
     const code = slugMatch[1]?.toLowerCase();
     if (!code) continue;
 
-    const titleText = link.text?.replace(/\s+/g, " ").trim() ?? "";
-    const descriptionText = description
-      ? (description.text?.replace(/\s+/g, " ").trim() ?? "")
-      : "";
+    // Get short title from link text
+    const shortTitle = link.text?.replace(/\s+/g, " ").trim() ?? "";
+
+    // Get full title from abbr title attribute
+    const abbr = link.querySelector("abbr");
+    const fullTitle = abbr?.getAttribute("title")?.trim() ?? "";
+
+    // Get description from remaining text in the <p> (after the link, before PDF link)
+    const nodeText = node.text ?? "";
+    const descriptionMatch = nodeText
+      .replace(shortTitle, "")
+      .replace(/PDF\s*$/, "")
+      .trim();
+    const description = descriptionMatch || fullTitle;
 
     entries.push({
       code,
-      title: titleText,
-      description: descriptionText,
+      title: shortTitle,
+      fullTitle: fullTitle || shortTitle,
+      description,
     });
   }
 

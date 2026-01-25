@@ -4,6 +4,7 @@ import path from "node:path";
 export interface LawDirectoryEntry {
   code: string;
   title: string;
+  fullTitle?: string;
   description?: string;
 }
 
