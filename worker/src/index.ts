@@ -77,12 +77,13 @@ export default {
         },
       });
 
-      const html = await response.text();
+      // Upstream uses ISO-8859-1 encoding - pass through raw bytes
+      const buffer = await response.arrayBuffer();
 
-      return new Response(html, {
+      return new Response(buffer, {
         status: response.status,
         headers: {
-          "Content-Type": "text/html; charset=utf-8",
+          "Content-Type": "text/html; charset=iso-8859-1",
           "Cache-Control": "public, max-age=3600",
           ...corsHeaders(isAllowedOrigin ? origin : env.ALLOWED_ORIGIN),
         },
