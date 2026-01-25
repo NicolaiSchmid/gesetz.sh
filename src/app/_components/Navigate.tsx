@@ -1,67 +1,48 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import * as React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useRouter } from "next/navigation";
+import { Search, BookOpenText, Landmark } from "lucide-react";
 
-function processEntry(string: string) {
-  const parts = string.split("§");
+import { Button } from "@/components/ui/button";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
 
-  if (parts.length === 1) {
-    return { paragraph: parts[0] };
+const QUICK_LINKS = [
+  { label: "HGB § 1", value: "hgb§1", description: "Handelsgesetzbuch" },
+  { label: "BGB § 433", value: "bgb§433", description: "Kaufvertrag" },
+  { label: "StGB § 242", value: "stgb§242", description: "Diebstahl" },
+];
+
+function processEntry(raw: string) {
+  const sanitized = raw.replace(/\s+/g, "").toLowerCase();
+  if (!sanitized) return { paragraph: undefined };
+
+  if (!sanitized.includes("§")) {
+    const pattern = /^([a-zäöüß]+)?(\d.*)$/i;
+    const match = pattern.exec(sanitized);
+    if (match) {
+      return { law: match[1], paragraph: match[2] };
+    }
+    return { paragraph: sanitized };
   }
 
-  if (parts.length > 2) {
-    console.error("Wrong entry");
-  }
+  const parts = sanitized.split("§").filter(Boolean);
+  if (parts.length === 0) return { paragraph: undefined };
 
-  return { law: parts[0], paragraph: parts[parts.length - 1] };
-}
+  const detectedLaw = parts.length > 1 ? parts[0] : undefined;
+  const detectedParagraph = parts[parts.length - 1];
 
-// Define prop types
-interface NavigateFormProps {
-  law: string;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  paragraph?: string;
-}
-
-function NavigateForm({ law, setOpen, paragraph }: NavigateFormProps) {
-  const router = useRouter();
-
-  return (
-    <div>
-      <form
-        onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
-          event.preventDefault();
-          const target = event.target as typeof event.target & {
-            paragraph: { value: string };
-          };
-          const { law: newLaw, paragraph: newParagraph } = processEntry(
-            target.paragraph.value,
-          );
-
-          if (!newParagraph) {
-            setOpen(false);
-            return;
-          }
-
-          setOpen(false);
-
-          // route to new paragraph
-          router.push(`/${newLaw ?? law}/${newParagraph}`);
-        }}
-      >
-        <input
-          type="text"
-          id="paragraph"
-          name="paragraph"
-          placeholder="Shortcut"
-          autoFocus
-          className="max-auto mb-2 w-full rounded-lg p-2 text-gray-800 shadow-lg ring-blue-200 focus:ring-2 focus:outline-none"
-        />
-      </form>
-    </div>
-  );
+  return { law: detectedLaw, paragraph: detectedParagraph };
 }
 
 interface NavigateProps {
@@ -70,20 +51,126 @@ interface NavigateProps {
 }
 
 export default function Navigate({ law, paragraph }: NavigateProps) {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState("");
 
   useHotkeys(
     "meta+k, ctrl+k",
     (event) => {
       event.preventDefault();
-
-      if (!open) setOpen(true);
+      setOpen(true);
     },
-    [open, setOpen],
+    [setOpen],
   );
 
-  if (open)
-    return <NavigateForm law={law} paragraph={paragraph} setOpen={setOpen} />;
+  const handleNavigate = React.useCallback(
+    (input: string) => {
+      const { law: newLaw, paragraph: newParagraph } = processEntry(input);
+      if (!newParagraph) return;
 
-  return null;
+      setOpen(false);
+      setQuery("");
+
+      const targetLaw = (newLaw ?? law).toLowerCase();
+      void router.push(`/${targetLaw}/${newParagraph.toLowerCase()}`);
+    },
+    [law, router],
+  );
+
+  const currentShortcut =
+    law && paragraph
+      ? {
+          label: `${law.toUpperCase()} § ${paragraph}`,
+          value: `${law}§${paragraph}`,
+          description: "Gerade geöffnet",
+        }
+      : null;
+
+  const quickSuggestions = React.useMemo(
+    () => QUICK_LINKS.filter((item) => item.value !== currentShortcut?.value),
+    [currentShortcut?.value],
+  );
+
+  const closeDialog = (value: boolean) => {
+    setOpen(value);
+    if (!value) setQuery("");
+  };
+
+  return (
+    <>
+      <div className="mb-4 flex justify-end">
+        <Button
+          variant="outline"
+          onClick={() => setOpen(true)}
+          className="gap-2"
+        >
+          <Search className="h-4 w-4" />
+          Gesetz öffnen
+          <kbd className="bg-muted text-muted-foreground hidden rounded px-1.5 py-0.5 text-[10px] font-semibold sm:inline-flex">
+            ⌘K
+          </kbd>
+        </Button>
+      </div>
+      <CommandDialog open={open} onOpenChange={closeDialog}>
+        <CommandInput
+          placeholder="z.B. hgb §1 oder bgb 433"
+          value={query}
+          onValueChange={setQuery}
+        />
+        <CommandList>
+          <CommandEmpty>Keine Treffer. Probier „hgb §1”.</CommandEmpty>
+          {currentShortcut && (
+            <CommandGroup heading="Aktuelle Seite">
+              <CommandItem
+                onSelect={() => handleNavigate(currentShortcut.value)}
+              >
+                <BookOpenText className="mr-2 h-4 w-4" />
+                <div className="flex flex-col">
+                  <span>{currentShortcut.label}</span>
+                  <span className="text-muted-foreground text-xs">
+                    Gerade geöffnet
+                  </span>
+                </div>
+              </CommandItem>
+            </CommandGroup>
+          )}
+          {quickSuggestions.length > 0 && (
+            <CommandGroup heading="Schnellzugriff">
+              {quickSuggestions.map((item) => (
+                <CommandItem
+                  key={item.value}
+                  value={item.value}
+                  onSelect={() => handleNavigate(item.value)}
+                >
+                  <Landmark className="mr-2 h-4 w-4" />
+                  <div className="flex flex-col">
+                    <span>{item.label}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {item.description}
+                    </span>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {query.trim().length > 0 && (
+            <>
+              <CommandSeparator />
+              <CommandGroup heading="Direkt öffnen">
+                <CommandItem
+                  value={query}
+                  onSelect={() => handleNavigate(query)}
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  <span>{`Gehe zu „${query}”`}</span>
+                  <CommandShortcut>Enter</CommandShortcut>
+                </CommandItem>
+              </CommandGroup>
+            </>
+          )}
+        </CommandList>
+      </CommandDialog>
+    </>
+  );
 }
