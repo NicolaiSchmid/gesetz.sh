@@ -28,7 +28,7 @@
     "dom-parser": "^1.1.5",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.507.0",
-    "next": "^15.2.3",
+    "next": "15.3.8",
     "node-html-parser": "^7.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
