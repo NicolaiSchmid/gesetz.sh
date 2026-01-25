@@ -2,11 +2,9 @@ import flatten from "lodash-es/flatten";
 import Link from "next/link";
 import { parse, type HTMLElement } from "node-html-parser";
 
-import Navigate from "@/app/_components/Navigate";
 import KeyboardNavigation from "./KeyboardNavigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { loadLawDirectory } from "@/lib/law-directory";
 import { env } from "@/env";
 
 const DOMAIN = "https://www.gesetze-im-internet.de";
@@ -137,7 +135,6 @@ export default async function Display({
   }>;
 }) {
   const { law, paragraph } = await params;
-  const lawDirectory = await loadLawDirectory();
   const paragraphData = await fetchParagraphData(law, paragraph);
   const sourceUrl = buildSourceUrl(law, paragraph);
   const hasHeaders = Boolean(paragraphData?.headers?.length);
@@ -145,11 +142,6 @@ export default async function Display({
   return (
     <div className="flex-inline items-center justify-center px-5 py-5">
       <div className="mx-auto w-full" style={{ maxWidth: "700px" }}>
-        <Navigate
-          law={law}
-          paragraph={paragraph}
-          lawDirectory={lawDirectory.laws}
-        />
         <KeyboardNavigation
           law={law}
           backward={paragraphData?.backward}

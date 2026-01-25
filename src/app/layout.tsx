@@ -4,7 +4,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
-import Link from "next/link";
+import { Header } from "./_components/Header";
 
 export const metadata: Metadata = {
   title: "Gesetze im Internet 2.0",
@@ -37,20 +37,7 @@ export default function RootLayout({
         <TRPCReactProvider>
           <div className="min-h-screen min-w-screen">
             <Flag />
-            <div className="relative z-50 bg-white shadow">
-              <div className="mx-auto max-w-7xl px-4 sm:px-6">
-                <div className="flex items-center justify-between py-3 md:justify-start md:space-x-10">
-                  <div className="flex w-0 flex-1">
-                    <Link
-                      href="/"
-                      className="text-xl font-bold tracking-tight text-gray-900"
-                    >
-                      Gesetze 2.0
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Header />
             <div>{children}</div>
           </div>
         </TRPCReactProvider>

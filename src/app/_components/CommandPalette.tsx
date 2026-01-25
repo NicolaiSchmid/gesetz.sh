@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Search, BookOpenText, Landmark } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,6 @@ function buildAliasEntries(lawDirectory: LawDirectoryEntry[]): AliasEntry[] {
     if (law.fullTitle) aliasTokens.add(law.fullTitle);
     if (law.description) aliasTokens.add(law.description);
 
-    // Extract keywords from fullTitle and description
     const textToSplit = `${law.fullTitle ?? ""} ${law.description ?? ""}`;
     const keywords = textToSplit.split(/[^a-zA-Zäöüß0-9]+/i).filter(Boolean);
 
@@ -57,7 +56,11 @@ function buildAliasEntries(lawDirectory: LawDirectoryEntry[]): AliasEntry[] {
   return entries.sort((a, b) => b.token.length - a.token.length);
 }
 
-function processEntry(raw: string, aliasEntries: AliasEntry[]) {
+function processEntry(
+  raw: string,
+  aliasEntries: AliasEntry[],
+  fallbackLaw?: string,
+) {
   let sanitized = raw.replace(/\s+/g, "").toLowerCase();
   if (!sanitized) return { paragraph: undefined };
 
@@ -78,9 +81,12 @@ function processEntry(raw: string, aliasEntries: AliasEntry[]) {
     const pattern = /^([a-zäöüß]+)?(\d.*)$/i;
     const match = pattern.exec(sanitized);
     if (match) {
-      return { law: match[1] ?? detectedLaw, paragraph: match[2] };
+      return {
+        law: match[1] ?? detectedLaw ?? fallbackLaw,
+        paragraph: match[2],
+      };
     }
-    return { law: detectedLaw, paragraph: sanitized };
+    return { law: detectedLaw ?? fallbackLaw, paragraph: sanitized };
   }
 
   const parts = sanitized.split("§").filter(Boolean);
@@ -89,23 +95,28 @@ function processEntry(raw: string, aliasEntries: AliasEntry[]) {
   const lawFromInput = parts.length > 1 ? parts[0] : undefined;
   const detectedParagraph = parts[parts.length - 1];
 
-  return { law: detectedLaw ?? lawFromInput, paragraph: detectedParagraph };
+  return {
+    law: detectedLaw ?? lawFromInput ?? fallbackLaw,
+    paragraph: detectedParagraph,
+  };
 }
 
-interface NavigateProps {
-  law: string;
-  paragraph?: string;
+interface CommandPaletteProps {
   lawDirectory: LawDirectoryEntry[];
 }
 
-export default function Navigate({
-  law,
-  paragraph,
-  lawDirectory,
-}: NavigateProps) {
+export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
+
+  // Extract current law/paragraph from pathname
+  const pathPattern = /^\/([^/]+)\/([^/]+)/;
+  const pathMatch = pathPattern.exec(pathname);
+  const currentLaw = pathMatch?.[1];
+  const currentParagraph = pathMatch?.[2];
+
   const aliasEntries = React.useMemo(
     () => buildAliasEntries(lawDirectory),
     [lawDirectory],
@@ -129,23 +140,25 @@ export default function Navigate({
       const { law: newLaw, paragraph: newParagraph } = processEntry(
         input,
         aliasEntries,
+        currentLaw,
       );
-      if (!newParagraph) return;
+      if (!newParagraph || !newLaw) return;
 
       setOpen(false);
       setQuery("");
 
-      const targetLaw = (newLaw ?? law).toLowerCase();
-      void router.push(`/${targetLaw}/${newParagraph.toLowerCase()}`);
+      void router.push(
+        `/${newLaw.toLowerCase()}/${newParagraph.toLowerCase()}`,
+      );
     },
-    [aliasEntries, law, router],
+    [aliasEntries, currentLaw, router],
   );
 
   const currentShortcut =
-    law && paragraph
+    currentLaw && currentParagraph
       ? {
-          label: `${law.toUpperCase()} § ${paragraph}`,
-          value: `${law}§${paragraph}`,
+          label: `${currentLaw.toUpperCase()} § ${currentParagraph}`,
+          value: `${currentLaw}§${currentParagraph}`,
           description: "Gerade geöffnet",
         }
       : null;
@@ -178,27 +191,23 @@ export default function Navigate({
 
   return (
     <>
-      <div className="mb-4 flex justify-end">
-        <Button
-          variant="outline"
-          onClick={() => setOpen(true)}
-          className="gap-2"
-        >
-          <Search className="h-4 w-4" />
-          Gesetz öffnen
-          <kbd className="bg-muted text-muted-foreground hidden rounded px-1.5 py-0.5 text-[10px] font-semibold sm:inline-flex">
-            ⌘K
-          </kbd>
-        </Button>
-      </div>
+      <Button variant="outline" onClick={() => setOpen(true)} className="gap-2">
+        <Search className="h-4 w-4" />
+        <span className="hidden sm:inline">Gesetz öffnen</span>
+        <kbd className="bg-muted text-muted-foreground hidden rounded px-1.5 py-0.5 text-[10px] font-semibold sm:inline-flex">
+          ⌘K
+        </kbd>
+      </Button>
       <CommandDialog open={open} onOpenChange={closeDialog}>
         <CommandInput
-          placeholder="z.B. hgb §1 oder bgb 433"
+          placeholder="z.B. hgb §1 oder strafgesetzbuch 242"
           value={query}
           onValueChange={setQuery}
         />
         <CommandList>
-          <CommandEmpty>Keine Treffer. Probier „hgb §1”.</CommandEmpty>
+          <CommandEmpty>
+            Keine Treffer. Probier &ldquo;hgb §1&rdquo;.
+          </CommandEmpty>
           {currentShortcut && (
             <CommandGroup heading="Aktuelle Seite">
               <CommandItem
@@ -225,7 +234,7 @@ export default function Navigate({
                   <Landmark className="mr-2 h-4 w-4" />
                   <div className="flex flex-col">
                     <span>
-                      {lawMeta.title}
+                      {lawMeta.fullTitle ?? lawMeta.title}
                       <span className="text-muted-foreground ml-1 text-xs">
                         {lawMeta.code.toUpperCase()}
                       </span>
@@ -266,7 +275,7 @@ export default function Navigate({
                   onSelect={() => handleNavigate(query)}
                 >
                   <Search className="mr-2 h-4 w-4" />
-                  <span>{`Gehe zu „${query}”`}</span>
+                  <span>{`Gehe zu „${query}"`}</span>
                   <CommandShortcut>Enter</CommandShortcut>
                 </CommandItem>
               </CommandGroup>
