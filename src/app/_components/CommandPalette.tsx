@@ -215,7 +215,9 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
               >
                 <BookOpenText className="mr-2 h-4 w-4 text-gray-600" />
                 <div className="flex flex-col">
-                  <span className="text-gray-900">{currentShortcut.label}</span>
+                  <span className="font-medium text-black">
+                    {currentShortcut.label}
+                  </span>
                   <span className="text-xs text-gray-500">Gerade geöffnet</span>
                 </div>
               </CommandItem>
@@ -231,13 +233,13 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
                 >
                   <Landmark className="mr-2 h-4 w-4 text-gray-600" />
                   <div className="flex flex-col">
-                    <span className="text-gray-900">
+                    <span className="font-medium text-black">
                       {lawMeta.fullTitle ?? lawMeta.title}
-                      <span className="ml-1 text-xs text-gray-500">
+                      <span className="ml-2 text-xs font-normal text-gray-500">
                         {lawMeta.code.toUpperCase()}
                       </span>
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-600">
                       {lawMeta.description}
                     </span>
                   </div>
@@ -255,8 +257,8 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
                 >
                   <Landmark className="mr-2 h-4 w-4 text-gray-600" />
                   <div className="flex flex-col">
-                    <span className="text-gray-900">{item.label}</span>
-                    <span className="text-xs text-gray-500">
+                    <span className="font-medium text-black">{item.label}</span>
+                    <span className="text-xs text-gray-600">
                       {item.description}
                     </span>
                   </div>
