@@ -4,7 +4,7 @@ A lightning-fast reader for German law built for keyboards, muscle memory, and p
 
 ## Why it exists
 
-- **Stay in flow** – hit `p`, type `bgb§433`, press enter. Done.
+- **Stay in flow** – hit `⌘K` / `Ctrl+K`, type `bgb§433`, press enter. Done.
 - **Blazing navigation** – `j`/`l` flick through paragraphs, URLs stay tidy (`/hgb/1`).
 - **Readable typography** – cards, contrast, and whitespace focused on the text, not the chrome.
 - **Resilient data** – we proxy through Cloudflare to keep `gesetze-im-internet.de` happy even when it blocks cloud IPs.
@@ -36,7 +36,7 @@ Examples:
 | `/bgb/433`  | Bürgerliches Gesetzbuch §433 |
 | `/stgb/242` | Strafgesetzbuch §242         |
 
-The quick-jump input accepts combos like `bgb§433` or `stgb 242` and figures it out.
+Open the command palette with `⌘K` / `Ctrl+K`. The quick-jump accepts combos like `bgb§433` or `stgb 242` and figures it out.
 
 ## Stack
 

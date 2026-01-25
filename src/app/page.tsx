@@ -8,7 +8,7 @@ export default function Home() {
       <ul>
         <li>Schnelle Navigation durch deutsche Gesetze</li>
         <li>
-          Drücke <code>p</code> für Quick-Navigation
+          Drücke <code>⌘K</code> / <code>Ctrl+K</code> für Quick-Navigation
         </li>
         <li>Kompakte, kurze URLs</li>
         <li>Fokus auf Lesbarkeit und Effizienz</li>

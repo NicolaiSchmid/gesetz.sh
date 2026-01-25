@@ -73,9 +73,8 @@ export default function Navigate({ law, paragraph }: NavigateProps) {
   const [open, setOpen] = useState(false);
 
   useHotkeys(
-    "p",
+    "meta+k, ctrl+k",
     (event) => {
-      // Don't type the p character directly into the text input
       event.preventDefault();
 
       if (!open) setOpen(true);
