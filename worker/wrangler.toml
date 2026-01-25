@@ -1,6 +1,6 @@
-name = "gesetze-proxy"
+name = "gesetze"
 main = "src/index.ts"
-compatibility_date = "2024-01-01"
+compatibility_date = "2025-01-25"
 
 [vars]
 ALLOWED_ORIGIN = "https://gesetze.vercel.app"
