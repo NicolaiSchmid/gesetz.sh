@@ -8,12 +8,26 @@ const LAW_CODES = Array.from({ length: 26 }, (_, i) =>
   String.fromCharCode(65 + i),
 );
 
+const PROXY_URL = process.env.GESETZE_PROXY_URL;
+const PROXY_API_KEY = process.env.GESETZE_PROXY_API_KEY;
 const BASE_URL = "https://www.gesetze-im-internet.de";
-const LIST_PATH = (token) => `${BASE_URL}/Teilliste_${token}.html`;
+
+function buildFetchUrl(token) {
+  const teillistePath = `Teilliste_${token}.html`;
+  if (PROXY_URL && PROXY_API_KEY) {
+    return `${PROXY_URL}/${teillistePath}`;
+  }
+  return `${BASE_URL}/${teillistePath}`;
+}
 
 async function fetchList(token) {
-  const url = LIST_PATH(token);
-  const response = await fetch(url);
+  const url = buildFetchUrl(token);
+  const headers = {};
+  if (PROXY_URL && PROXY_API_KEY) {
+    headers["X-API-Key"] = PROXY_API_KEY;
+  }
+
+  const response = await fetch(url, { headers });
   if (!response.ok) {
     console.warn(`Failed to fetch ${url}: ${response.status}`);
     return [];

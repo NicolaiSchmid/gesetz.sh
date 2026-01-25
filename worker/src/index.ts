@@ -55,9 +55,10 @@ export default {
       });
     }
 
-    // Validate path format to prevent abuse (only allow law paths)
-    const pathPattern = /^[a-z0-9_-]+\/__[a-z0-9_-]+\.html$/i;
-    if (!pathPattern.test(path)) {
+    // Validate path format to prevent abuse (allow law paths and Teilliste)
+    const lawPathPattern = /^[a-z0-9_-]+\/__[a-z0-9_-]+\.html$/i;
+    const teillistePattern = /^Teilliste_[A-Z]\.html$/;
+    if (!lawPathPattern.test(path) && !teillistePattern.test(path)) {
       return new Response(JSON.stringify({ error: "Invalid path format" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
