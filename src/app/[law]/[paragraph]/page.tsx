@@ -1,6 +1,6 @@
 import flatten from "lodash-es/flatten";
 import Link from "next/link";
-import { parse } from "node-html-parser";
+import { parse, type HTMLElement } from "node-html-parser";
 
 import Navigate from "@/app/_components/Navigate";
 import KeyboardNavigation from "./KeyboardNavigation";
@@ -8,8 +8,89 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const DOMAIN = "https://www.gesetze-im-internet.de";
+const REQUEST_HEADERS = {
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) GesetzeNext/1.0 Chrome/120.0.0.0 Safari/537.36",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
+} as const;
 
-function getLinkHref(element: Element | null): string | undefined {
+type ParagraphData = {
+  headers: string[];
+  content: string[];
+  footnotes: string[];
+  backward?: string;
+  forward?: string;
+};
+
+const SOURCE_REVALIDATE_SECONDS = 60 * 60; // 1 hour
+
+function buildSourceUrl(law: string, paragraph: string) {
+  return `${DOMAIN}/${law.toLowerCase()}/__${paragraph.toLowerCase()}.html`;
+}
+
+async function fetchParagraphData(
+  law: string,
+  paragraph: string,
+): Promise<ParagraphData | null> {
+  const sourceUrl = buildSourceUrl(law, paragraph);
+
+  try {
+    const response = await fetch(sourceUrl, {
+      headers: REQUEST_HEADERS,
+      next: { revalidate: SOURCE_REVALIDATE_SECONDS },
+    });
+
+    if (!response.ok) {
+      console.error(`Failed to fetch ${sourceUrl}: ${response.status}`);
+      return null;
+    }
+
+    const text = await response.text();
+    const html = parse(text);
+
+    const headers = flatten(
+      html
+        .querySelectorAll(".jnheader")
+        .map((header) =>
+          header
+            .querySelectorAll("h1")
+            .map((heading) => heading.innerHTML ?? ""),
+        ),
+    );
+
+    const content = html
+      .querySelectorAll(".jurAbsatz")
+      .map((element) => element.innerHTML ?? "");
+
+    const footnotes = html
+      .querySelectorAll(".jnfussnote")
+      .map((element) => element.innerHTML ?? "");
+
+    const backward = getLinkHref(
+      (html.querySelector("#blaettern_zurueck")
+        ?.firstChild as HTMLElement | null) ?? null,
+    );
+    const forward = getLinkHref(
+      (html.querySelector("#blaettern_weiter")
+        ?.firstChild as HTMLElement | null) ?? null,
+    );
+
+    if (!headers.length && !content.length) {
+      console.error(
+        `Source HTML for ${sourceUrl} did not contain recognizable content.`,
+      );
+      return null;
+    }
+
+    return { headers, content, footnotes, backward, forward };
+  } catch (error) {
+    console.error(`Unexpected error while fetching ${sourceUrl}`, error);
+    return null;
+  }
+}
+
+function getLinkHref(element: HTMLElement | null): string | undefined {
   if (!element) return undefined;
 
   const originalLink = element.getAttribute("href");
@@ -25,83 +106,71 @@ export default async function Display({
   }>;
 }) {
   const { law, paragraph } = await params;
-
-  const response = await fetch(
-    `${DOMAIN}/${law.toLowerCase()}/__${paragraph.toLowerCase()}.html`,
-  );
-  const text = await response.text();
-  const html = parse(text);
-
-  const headers = flatten(
-    html
-      .querySelectorAll(".jnheader")
-      .map(
-        (header) =>
-          header
-            .querySelectorAll("h1")
-            .map((heading) => heading.innerHTML ?? "") ?? [],
-      ),
-  );
-
-  const content = html
-    .querySelectorAll(".jurAbsatz")
-    .map((content) => content.innerHTML ?? "");
-
-  const footnotes = html
-    .querySelectorAll(".jnfussnote")
-    .map((footnote) => footnote.innerHTML ?? "");
-
-  const backward = getLinkHref(
-    (html.querySelector("#blaettern_zurueck")
-      ?.firstChild as unknown as Element) ?? null,
-  );
-
-  const forward = getLinkHref(
-    (html.querySelector("#blaettern_weiter")
-      ?.firstChild as unknown as Element) ?? null,
-  );
+  const paragraphData = await fetchParagraphData(law, paragraph);
+  const sourceUrl = buildSourceUrl(law, paragraph);
+  const hasHeaders = Boolean(paragraphData?.headers?.length);
 
   return (
     <div className="flex-inline items-center justify-center px-5 py-5">
       <div className="mx-auto w-full" style={{ maxWidth: "700px" }}>
         <Navigate law={law} paragraph={paragraph} />
-        <KeyboardNavigation law={law} backward={backward} forward={forward} />
+        <KeyboardNavigation
+          law={law}
+          backward={paragraphData?.backward}
+          forward={paragraphData?.forward}
+        />
         <Card className="mx-auto w-full">
           <CardHeader>
             <CardTitle>
-              {headers.map((header) => (
-                <h2
-                  className="text-lg"
-                  dangerouslySetInnerHTML={{ __html: header }}
-                  key={header}
-                />
-              ))}
+              {hasHeaders && paragraphData ? (
+                paragraphData.headers.map((header, index) => (
+                  <h2
+                    className="text-lg"
+                    dangerouslySetInnerHTML={{ __html: header }}
+                    key={`${header}-${index}`}
+                  />
+                ))
+              ) : (
+                <h2 className="text-lg">
+                  {`${law.toUpperCase()} § ${paragraph}`}
+                </h2>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="mb-10 w-full">
-              {content.map((content) => (
-                <div
-                  className="text-gray-600px-5 m-2 text-sm"
-                  dangerouslySetInnerHTML={{ __html: content }}
-                  key={content}
-                />
-              ))}
-            </div>
-            <div className="w-full">
-              {footnotes.map((footnote) => (
-                <div
-                  className="text-md text-gray-600"
-                  dangerouslySetInnerHTML={{ __html: footnote }}
-                  key={footnote}
-                />
-              ))}
-            </div>
-            <div className="flex w-full justify-between">
-              <NavigationButton law={law} paragraph={backward}>
+            {paragraphData ? (
+              <>
+                <div className="mb-10 w-full">
+                  {paragraphData.content.map((content, index) => (
+                    <div
+                      className="m-2 px-5 text-sm text-gray-600"
+                      dangerouslySetInnerHTML={{ __html: content }}
+                      key={`content-${index}`}
+                    />
+                  ))}
+                </div>
+                <div className="w-full">
+                  {paragraphData.footnotes.map((footnote, index) => (
+                    <div
+                      className="text-md text-gray-600"
+                      dangerouslySetInnerHTML={{ __html: footnote }}
+                      key={`footnote-${index}`}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <UnavailableState
+                law={law}
+                paragraph={paragraph}
+                sourceUrl={sourceUrl}
+              />
+            )}
+            <div className="flex w-full justify-between pt-6">
+              <NavigationButton law={law} paragraph={paragraphData?.backward}>
                 Zurück
               </NavigationButton>
-              <NavigationButton law={law} paragraph={forward}>
+              <NavigationButton law={law} paragraph={paragraphData?.forward}>
                 Vor
               </NavigationButton>
             </div>
@@ -124,6 +193,37 @@ function NavigationButton({ law, paragraph, children }: NavigationButtonProps) {
     <Button variant="outline" asChild>
       <Link href={`/${law}/${paragraph}`}>{children}</Link>
     </Button>
+  );
+}
+
+interface UnavailableStateProps {
+  law: string;
+  paragraph: string;
+  sourceUrl: string;
+}
+
+function UnavailableState({
+  law,
+  paragraph,
+  sourceUrl,
+}: UnavailableStateProps) {
+  return (
+    <div className="space-y-4 text-sm text-gray-600">
+      <p>
+        {`§ ${paragraph} aus dem ${law.toUpperCase()} konnte gerade nicht geladen werden.`}
+      </p>
+      <p>Bitte versuche es erneut oder öffne das Originaldokument.</p>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" asChild>
+          <Link href="/">Zur Startseite</Link>
+        </Button>
+        <Button asChild>
+          <a href={sourceUrl} target="_blank" rel="noreferrer">
+            Original öffnen
+          </a>
+        </Button>
+      </div>
+    </div>
   );
 }
 
