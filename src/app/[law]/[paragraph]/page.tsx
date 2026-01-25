@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import flatten from "lodash-es/flatten";
 import Link from "next/link";
 import { parse, type HTMLElement } from "node-html-parser";
@@ -6,6 +7,24 @@ import KeyboardNavigation from "./KeyboardNavigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { env } from "@/env";
+
+type PageParams = {
+  law: string;
+  paragraph: string;
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<PageParams>;
+}): Promise<Metadata> {
+  const { law, paragraph } = await params;
+  const title = `${law.toUpperCase()} § ${paragraph}`;
+
+  return {
+    title: `${title} | Gesetze 2.0`,
+  };
+}
 
 const DOMAIN = "https://www.gesetze-im-internet.de";
 const REQUEST_HEADERS: Record<string, string> = {
@@ -149,6 +168,15 @@ export default async function Display({
           backward={paragraphData?.backward}
           forward={paragraphData?.forward}
         />
+        <div className="mb-4 text-sm text-gray-500">
+          <Link href="/" className="hover:text-gray-700">
+            Gesetze
+          </Link>
+          <span className="mx-2">/</span>
+          <span className="font-medium text-gray-900">
+            {law.toUpperCase()} § {paragraph}
+          </span>
+        </div>
         <Card className="mx-auto w-full">
           <CardHeader>
             <CardTitle>
