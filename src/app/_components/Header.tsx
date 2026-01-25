@@ -13,7 +13,7 @@ export function Header() {
             href="/"
             className="text-xl font-bold tracking-tight text-gray-900 transition-colors hover:text-gray-500"
           >
-            gesetze.io
+            Gesetz.sh
           </Link>
           <CommandPalette lawDirectory={lawDirectory.laws} />
         </div>
