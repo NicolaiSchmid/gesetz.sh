@@ -191,11 +191,15 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
 
   return (
     <>
-      <Button variant="outline" onClick={() => setOpen(true)} className="gap-2">
+      <Button
+        variant="outline"
+        onClick={() => setOpen(true)}
+        className="gap-2 border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-900"
+      >
         <Search className="h-4 w-4" />
-        <span className="hidden sm:inline">Gesetz öffnen</span>
-        <kbd className="bg-muted text-muted-foreground hidden rounded px-1.5 py-0.5 text-[10px] font-semibold sm:inline-flex">
-          ⌘ K
+        <span className="hidden sm:inline">Suche</span>
+        <kbd className="hidden rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5 font-mono text-[10px] sm:inline-flex">
+          ⌘K
         </kbd>
       </Button>
       <CommandDialog open={open} onOpenChange={closeDialog}>
@@ -213,7 +217,7 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
               <CommandItem
                 onSelect={() => handleNavigate(currentShortcut.value)}
               >
-                <BookOpenText className="mr-2 h-4 w-4 text-gray-600" />
+                <BookOpenText className="mr-2 h-4 w-4 text-gray-400" />
                 <div className="flex flex-col">
                   <span className="font-medium text-black">
                     {currentShortcut.label}
@@ -231,7 +235,7 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
                   value={lawMeta.code}
                   onSelect={() => setQuery(`${lawMeta.code}§`)}
                 >
-                  <Landmark className="mr-2 h-4 w-4 text-gray-600" />
+                  <Landmark className="mr-2 h-4 w-4 text-gray-400" />
                   <div className="flex flex-col">
                     <span className="font-medium text-black">
                       {lawMeta.fullTitle ?? lawMeta.title}
@@ -255,7 +259,7 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
                   value={item.value}
                   onSelect={() => handleNavigate(item.value)}
                 >
-                  <Landmark className="mr-2 h-4 w-4 text-gray-600" />
+                  <Landmark className="mr-2 h-4 w-4 text-gray-400" />
                   <div className="flex flex-col">
                     <span className="font-medium text-black">{item.label}</span>
                     <span className="text-xs text-gray-600">

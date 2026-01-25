@@ -6,20 +6,18 @@ export function Header() {
   const lawDirectory = loadLawDirectory();
 
   return (
-    <div className="relative z-50 bg-white shadow">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex items-center justify-between py-3 md:justify-start md:space-x-10">
-          <div className="flex w-0 flex-1">
-            <Link
-              href="/"
-              className="text-xl font-bold tracking-tight text-gray-900"
-            >
-              Gesetze 2.0
-            </Link>
-          </div>
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-md">
+      <div className="mx-auto max-w-5xl px-6">
+        <div className="flex items-center justify-between py-5">
+          <Link
+            href="/"
+            className="text-xl font-bold tracking-tight text-gray-900 transition-colors hover:text-gray-500"
+          >
+            gesetze.io
+          </Link>
           <CommandPalette lawDirectory={lawDirectory.laws} />
         </div>
       </div>
-    </div>
+    </header>
   );
 }

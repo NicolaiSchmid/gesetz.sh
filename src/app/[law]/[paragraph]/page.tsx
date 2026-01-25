@@ -4,7 +4,6 @@ import Link from "next/link";
 import { parse, type HTMLElement } from "node-html-parser";
 
 import KeyboardNavigation from "./KeyboardNavigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { env } from "@/env";
 
@@ -164,84 +163,107 @@ export default async function Display({
   const hasHeaders = Boolean(paragraphData?.headers?.length);
 
   return (
-    <div className="flex-inline items-center justify-center px-5 py-5">
-      <div className="mx-auto w-full" style={{ maxWidth: "700px" }}>
-        <KeyboardNavigation
-          law={law}
-          backward={paragraphData?.backward}
-          forward={paragraphData?.forward}
-        />
-        <div className="mb-4 text-sm text-gray-500">
-          <Link href="/" className="hover:text-gray-700">
-            Gesetze
-          </Link>
-          <span className="mx-2">/</span>
-          <Link href={`/${law}/1`} className="hover:text-gray-700">
-            {law.toUpperCase()}
-          </Link>
-          <span className="mx-2">/</span>
-          <span className="font-medium text-gray-900">§ {paragraph}</span>
+    <div className="mx-auto max-w-2xl px-6 py-12">
+      <KeyboardNavigation
+        law={law}
+        backward={paragraphData?.backward}
+        forward={paragraphData?.forward}
+      />
+
+      {/* Breadcrumb */}
+      <nav className="mb-10 flex items-center gap-2 text-sm">
+        <Link href="/" className="text-gray-400 hover:text-gray-900">
+          Gesetze
+        </Link>
+        <span className="text-gray-300">/</span>
+        <Link href={`/${law}/1`} className="text-gray-400 hover:text-gray-900">
+          {law.toUpperCase()}
+        </Link>
+        <span className="text-gray-300">/</span>
+        <span className="font-medium text-gray-900">§ {paragraph}</span>
+      </nav>
+
+      {/* Header */}
+      <header className="mb-10">
+        <div className="mb-3 inline-block rounded-full bg-gray-900 px-3 py-1 text-xs font-semibold text-white">
+          {law.toUpperCase()}
         </div>
-        <Card className="mx-auto w-full">
-          <CardHeader>
-            <CardTitle>
-              {hasHeaders && paragraphData ? (
-                <h2 className="text-lg">
-                  {paragraphData.headers.map((header, index) => (
-                    <span
-                      dangerouslySetInnerHTML={{ __html: header }}
-                      key={`${header}-${index}`}
-                      className={index > 0 ? "ml-2" : ""}
-                    />
-                  ))}
-                </h2>
-              ) : (
-                <h2 className="text-lg">
-                  {`${law.toUpperCase()} § ${paragraph}`}
-                </h2>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {paragraphData ? (
-              <>
-                <div className="mb-10 w-full">
-                  {paragraphData.content.map((content, index) => (
-                    <div
-                      className="m-2 px-5 text-sm text-gray-600"
-                      dangerouslySetInnerHTML={{ __html: content }}
-                      key={`content-${index}`}
-                    />
-                  ))}
-                </div>
-                <div className="w-full">
-                  {paragraphData.footnotes.map((footnote, index) => (
-                    <div
-                      className="text-md text-gray-600"
-                      dangerouslySetInnerHTML={{ __html: footnote }}
-                      key={`footnote-${index}`}
-                    />
-                  ))}
-                </div>
-              </>
-            ) : (
-              <UnavailableState
-                law={law}
-                paragraph={paragraph}
-                sourceUrl={sourceUrl}
+        {hasHeaders && paragraphData ? (
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            {paragraphData.headers.map((header, index) => (
+              <span
+                dangerouslySetInnerHTML={{ __html: header }}
+                key={`${header}-${index}`}
+                className={index > 0 ? "ml-2" : ""}
               />
-            )}
-            <div className="flex w-full justify-between pt-6">
-              <NavigationButton law={law} paragraph={paragraphData?.backward}>
-                Zurück
-              </NavigationButton>
-              <NavigationButton law={law} paragraph={paragraphData?.forward}>
-                Vor
-              </NavigationButton>
+            ))}
+          </h1>
+        ) : (
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            § {paragraph}
+          </h1>
+        )}
+      </header>
+
+      {/* Content */}
+      {paragraphData ? (
+        <article className="mb-16">
+          <div className="space-y-5 text-lg leading-relaxed text-gray-700">
+            {paragraphData.content.map((content, index) => (
+              <div
+                dangerouslySetInnerHTML={{ __html: content }}
+                key={`content-${index}`}
+              />
+            ))}
+          </div>
+          {paragraphData.footnotes.length > 0 && (
+            <div className="mt-12 border-t-2 border-gray-100 pt-8">
+              <div className="mb-4 text-xs font-bold tracking-widest text-gray-400 uppercase">
+                Fußnoten
+              </div>
+              {paragraphData.footnotes.map((footnote, index) => (
+                <div
+                  className="text-sm text-gray-500"
+                  dangerouslySetInnerHTML={{ __html: footnote }}
+                  key={`footnote-${index}`}
+                />
+              ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          )}
+        </article>
+      ) : (
+        <UnavailableState
+          law={law}
+          paragraph={paragraph}
+          sourceUrl={sourceUrl}
+        />
+      )}
+
+      {/* Navigation */}
+      <nav className="flex items-center justify-between border-t border-gray-100 pt-6">
+        <NavigationButton
+          law={law}
+          paragraph={paragraphData?.backward}
+          direction="back"
+        >
+          Zurück
+        </NavigationButton>
+        <a
+          href={sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="text-xs text-gray-300 hover:text-gray-500"
+        >
+          Quelle
+        </a>
+        <NavigationButton
+          law={law}
+          paragraph={paragraphData?.forward}
+          direction="forward"
+        >
+          Weiter
+        </NavigationButton>
+      </nav>
     </div>
   );
 }
@@ -250,14 +272,25 @@ interface NavigationButtonProps {
   law?: string;
   paragraph?: string;
   children: React.ReactNode;
+  direction: "back" | "forward";
 }
 
-function NavigationButton({ law, paragraph, children }: NavigationButtonProps) {
-  if (!law || !paragraph) return <div />;
+function NavigationButton({
+  law,
+  paragraph,
+  children,
+  direction,
+}: NavigationButtonProps) {
+  if (!law || !paragraph) return <div className="w-16" />;
   return (
-    <Button variant="outline" asChild>
-      <Link href={`/${law}/${paragraph}`}>{children}</Link>
-    </Button>
+    <Link
+      href={`/${law}/${paragraph}`}
+      className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"
+    >
+      {direction === "back" && <span>←</span>}
+      {children}
+      {direction === "forward" && <span>→</span>}
+    </Link>
   );
 }
 
