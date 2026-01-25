@@ -18,6 +18,9 @@ db.sqlite
 /out/
 next-env.d.ts
 
+# generated at build time
+/src/generated/
+
 # production
 /build
 

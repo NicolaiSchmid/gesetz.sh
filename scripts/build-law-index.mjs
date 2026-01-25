@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { parse } from "node-html-parser";
 
-const OUTPUT_DIR = path.resolve(".next/cache");
+const OUTPUT_DIR = path.resolve("src/generated");
 const OUTPUT_FILE = path.join(OUTPUT_DIR, "law-index.json");
 const LAW_CODES = [
   ...Array.from({ length: 9 }, (_, i) => String(i + 1)), // 1-9
