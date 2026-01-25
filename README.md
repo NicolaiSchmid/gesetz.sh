@@ -1,29 +1,53 @@
-# Create T3 App
+# Gesetze 2.0
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A modern, fast interface for browsing German laws from [gesetze-im-internet.de](https://www.gesetze-im-internet.de).
 
-## What's next? How do I make an app with this?
+## Features
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **Quick Navigation** — Press `p` to jump to any paragraph instantly
+- **Keyboard Shortcuts** — Use `j`/`l` to move between sections
+- **Clean URLs** — Simple paths like `/hgb/1` instead of cryptic query strings
+- **Readable Design** — Focus on the text, not the clutter
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Getting Started
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+```bash
+# Install dependencies
+pnpm install
 
-## Learn More
+# Start development server
+pnpm dev
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+# Build for production
+pnpm build
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+# Run production server
+pnpm start
+```
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## Tech Stack
 
-## How do I deploy this?
+- [Next.js 15](https://nextjs.org) — React framework with App Router
+- [Tailwind CSS 4](https://tailwindcss.com) — Utility-first styling
+- [tRPC](https://trpc.io) — End-to-end typesafe APIs
+- [shadcn/ui](https://ui.shadcn.com) — Accessible component primitives
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+## Usage
+
+Navigate to any law paragraph using the URL pattern:
+
+```
+/{law}/{paragraph}
+```
+
+Examples:
+
+- `/hgb/1` — HGB § 1
+- `/bgb/433` — BGB § 433
+- `/stgb/242` — StGB § 242
+
+Or press `p` on any page to open the quick-jump input.
+
+## License
+
+MIT
