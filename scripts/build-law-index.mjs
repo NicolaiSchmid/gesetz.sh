@@ -13,6 +13,11 @@ const PROXY_URL = process.env.GESETZE_PROXY_URL;
 const PROXY_API_KEY = process.env.GESETZE_PROXY_API_KEY;
 const BASE_URL = "https://www.gesetze-im-internet.de";
 
+console.log(`[build-law-index] PROXY_URL: ${PROXY_URL ? "set" : "NOT SET"}`);
+console.log(
+  `[build-law-index] PROXY_API_KEY: ${PROXY_API_KEY ? "set" : "NOT SET"}`,
+);
+
 function buildFetchUrl(token) {
   const teillistePath = `Teilliste_${token}.html`;
   if (PROXY_URL && PROXY_API_KEY) {
@@ -115,8 +120,14 @@ async function buildIndex() {
     "utf-8",
   );
 
+  const laws = [...unique.values()];
+  const sampleEntry = laws[0];
   console.log(
     `Law index generated with ${unique.size} entries -> ${OUTPUT_FILE}`,
+  );
+  console.log(`[build-law-index] Sample entry title: "${sampleEntry?.title}"`);
+  console.log(
+    `[build-law-index] Sample entry fullTitle: "${sampleEntry?.fullTitle}"`,
   );
 }
 
