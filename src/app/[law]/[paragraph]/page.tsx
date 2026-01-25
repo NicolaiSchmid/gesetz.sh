@@ -186,13 +186,15 @@ export default async function Display({
           <CardHeader>
             <CardTitle>
               {hasHeaders && paragraphData ? (
-                paragraphData.headers.map((header, index) => (
-                  <h2
-                    className="text-lg"
-                    dangerouslySetInnerHTML={{ __html: header }}
-                    key={`${header}-${index}`}
-                  />
-                ))
+                <h2 className="text-lg">
+                  {paragraphData.headers.map((header, index) => (
+                    <span
+                      dangerouslySetInnerHTML={{ __html: header }}
+                      key={`${header}-${index}`}
+                      className={index > 0 ? "ml-2" : ""}
+                    />
+                  ))}
+                </h2>
               ) : (
                 <h2 className="text-lg">
                   {`${law.toUpperCase()} § ${paragraph}`}
