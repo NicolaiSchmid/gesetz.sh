@@ -176,9 +176,11 @@ export default async function Display({
             Gesetze
           </Link>
           <span className="mx-2">/</span>
-          <span className="font-medium text-gray-900">
-            {law.toUpperCase()} § {paragraph}
-          </span>
+          <Link href={`/${law}/1`} className="hover:text-gray-700">
+            {law.toUpperCase()}
+          </Link>
+          <span className="mx-2">/</span>
+          <span className="font-medium text-gray-900">§ {paragraph}</span>
         </div>
         <Card className="mx-auto w-full">
           <CardHeader>
