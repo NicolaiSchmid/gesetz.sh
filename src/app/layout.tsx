@@ -7,9 +7,42 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { Header } from "./_components/Header";
 
 export const metadata: Metadata = {
-  title: "Gesetze im Internet 2.0",
-  description: "Gesetze im Internet 2.0 - Nur angenehmer!",
-  // icons: [{ rel: "icon", url: "/favicon.ico" }],
+  title: {
+    default: "Gesetz.sh - Deutsche Gesetze schnell durchsuchen",
+    template: "%s | Gesetz.sh",
+  },
+  description:
+    "Alle deutschen Gesetze und Verordnungen schnell durchsuchbar. BGB, StGB, HGB und über 6.800 weitere Gesetze mit Keyboard-Navigation.",
+  keywords: [
+    "deutsche Gesetze",
+    "BGB",
+    "StGB",
+    "HGB",
+    "Grundgesetz",
+    "Gesetze online",
+    "Rechtsnormen",
+    "Verordnungen",
+  ],
+  authors: [{ name: "Nicolai Schmid" }],
+  openGraph: {
+    type: "website",
+    locale: "de_DE",
+    url: "https://gesetz.sh",
+    siteName: "Gesetz.sh",
+    title: "Gesetz.sh - Deutsche Gesetze schnell durchsuchen",
+    description:
+      "Alle deutschen Gesetze und Verordnungen schnell durchsuchbar. BGB, StGB, HGB und über 6.800 weitere Gesetze.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gesetz.sh - Deutsche Gesetze schnell durchsuchen",
+    description:
+      "Alle deutschen Gesetze und Verordnungen schnell durchsuchbar.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 const geist = Geist({

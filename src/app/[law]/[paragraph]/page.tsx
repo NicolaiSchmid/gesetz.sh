@@ -18,10 +18,24 @@ export async function generateMetadata({
   params: Promise<PageParams>;
 }): Promise<Metadata> {
   const { law, paragraph } = await params;
-  const title = `${law.toUpperCase()} § ${paragraph}`;
+  const lawUpper = law.toUpperCase();
+  const title = `${lawUpper} § ${paragraph}`;
+  const description = `${lawUpper} § ${paragraph} - Gesetzestext online lesen auf Gesetz.sh`;
 
   return {
-    title: `${title} | Gesetze 2.0`,
+    title,
+    description,
+    openGraph: {
+      title: `${title} | Gesetz.sh`,
+      description,
+      type: "article",
+      url: `https://gesetz.sh/${law}/${paragraph}`,
+    },
+    twitter: {
+      card: "summary",
+      title: `${title} | Gesetz.sh`,
+      description,
+    },
   };
 }
 
