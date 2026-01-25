@@ -7,3 +7,18 @@ ALLOWED_ORIGIN = "https://gesetze.vercel.app"
 
 # API_KEY must be set via Cloudflare dashboard or `wrangler secret put API_KEY`
 # Cloudflare's GitHub integration will auto-deploy on push to main
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+persist = true
+head_sampling_rate = 1
