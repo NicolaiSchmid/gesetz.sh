@@ -35,6 +35,17 @@ export default async function Home() {
             </kbd>{" "}
             für Quick-Navigation
           </li>
+          <li>
+            Drücke{" "}
+            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 text-sm font-semibold">
+              J
+            </kbd>{" "}
+            /{" "}
+            <kbd className="rounded bg-gray-100 px-1.5 py-0.5 text-sm font-semibold">
+              L
+            </kbd>{" "}
+            für vorherigen/nächsten Paragraphen
+          </li>
           <li>Kompakte, kurze URLs</li>
           <li>Fokus auf Lesbarkeit und Effizienz</li>
         </ul>
