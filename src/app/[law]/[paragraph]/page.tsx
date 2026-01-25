@@ -6,14 +6,15 @@ import Navigate from "@/app/_components/Navigate";
 import KeyboardNavigation from "./KeyboardNavigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { env } from "@/env";
 
 const DOMAIN = "https://www.gesetze-im-internet.de";
-const REQUEST_HEADERS = {
+const REQUEST_HEADERS: Record<string, string> = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) GesetzeNext/1.0 Chrome/120.0.0.0 Safari/537.36",
   Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
   "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
-} as const;
+};
 
 type ParagraphData = {
   headers: string[];
@@ -33,39 +34,50 @@ async function fetchParagraphData(
   law: string,
   paragraph: string,
 ): Promise<ParagraphData | null> {
-  const sourceUrl = buildSourceUrl(law, paragraph);
+  const sourcePath = `${law.toLowerCase()}/__${paragraph.toLowerCase()}.html`;
+
+  // Use proxy if configured, otherwise fall back to direct fetch
+  const useProxy = env.GESETZE_PROXY_URL && env.GESETZE_PROXY_API_KEY;
+  const fetchUrl = useProxy
+    ? `${env.GESETZE_PROXY_URL}/${sourcePath}`
+    : `${DOMAIN}/${sourcePath}`;
+
+  const requestHeaders = { ...REQUEST_HEADERS };
+  if (useProxy && env.GESETZE_PROXY_API_KEY) {
+    requestHeaders["X-API-Key"] = env.GESETZE_PROXY_API_KEY;
+  }
 
   try {
-    const response = await fetch(sourceUrl, {
-      headers: REQUEST_HEADERS,
+    const response = await fetch(fetchUrl, {
+      headers: requestHeaders,
       next: { revalidate: SOURCE_REVALIDATE_SECONDS },
     });
 
     if (!response.ok) {
-      console.error(`Failed to fetch ${sourceUrl}: ${response.status}`);
+      console.error(`Failed to fetch ${fetchUrl}: ${response.status}`);
       return null;
     }
 
     const text = await response.text();
     const html = parse(text);
 
-    const headers = flatten(
+    const parsedHeaders = flatten(
       html
         .querySelectorAll(".jnheader")
-        .map((header) =>
+        .map((header: HTMLElement) =>
           header
             .querySelectorAll("h1")
-            .map((heading) => heading.innerHTML ?? ""),
+            .map((heading: HTMLElement) => heading.innerHTML ?? ""),
         ),
     );
 
     const content = html
       .querySelectorAll(".jurAbsatz")
-      .map((element) => element.innerHTML ?? "");
+      .map((element: HTMLElement) => element.innerHTML ?? "");
 
     const footnotes = html
       .querySelectorAll(".jnfussnote")
-      .map((element) => element.innerHTML ?? "");
+      .map((element: HTMLElement) => element.innerHTML ?? "");
 
     const backward = getLinkHref(
       (html.querySelector("#blaettern_zurueck")
@@ -76,16 +88,16 @@ async function fetchParagraphData(
         ?.firstChild as HTMLElement | null) ?? null,
     );
 
-    if (!headers.length && !content.length) {
+    if (!parsedHeaders.length && !content.length) {
       console.error(
-        `Source HTML for ${sourceUrl} did not contain recognizable content.`,
+        `Source HTML for ${fetchUrl} did not contain recognizable content.`,
       );
       return null;
     }
 
-    return { headers, content, footnotes, backward, forward };
+    return { headers: parsedHeaders, content, footnotes, backward, forward };
   } catch (error) {
-    console.error(`Unexpected error while fetching ${sourceUrl}`, error);
+    console.error(`Unexpected error while fetching ${fetchUrl}`, error);
     return null;
   }
 }

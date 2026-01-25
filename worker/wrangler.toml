@@ -1,0 +1,9 @@
+name = "gesetze-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://gesetze.vercel.app"
+
+# API_KEY must be set via Cloudflare dashboard or `wrangler secret put API_KEY`
+# Cloudflare's GitHub integration will auto-deploy on push to main
