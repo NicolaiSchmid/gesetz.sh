@@ -4,9 +4,10 @@ import { parse } from "node-html-parser";
 
 const OUTPUT_DIR = path.resolve(".next/cache");
 const OUTPUT_FILE = path.join(OUTPUT_DIR, "law-index.json");
-const LAW_CODES = Array.from({ length: 26 }, (_, i) =>
-  String.fromCharCode(65 + i),
-);
+const LAW_CODES = [
+  ...Array.from({ length: 9 }, (_, i) => String(i + 1)), // 1-9
+  ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)), // A-Z
+];
 
 const PROXY_URL = process.env.GESETZE_PROXY_URL;
 const PROXY_API_KEY = process.env.GESETZE_PROXY_API_KEY;
