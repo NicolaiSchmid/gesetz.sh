@@ -92,7 +92,10 @@ async function fetchParagraphData(
       return null;
     }
 
-    const text = await response.text();
+    // Upstream uses ISO-8859-1 encoding
+    const buffer = await response.arrayBuffer();
+    const decoder = new TextDecoder("iso-8859-1");
+    const text = decoder.decode(buffer);
     const html = parse(text);
 
     const parsedHeaders = flatten(

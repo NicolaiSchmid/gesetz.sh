@@ -33,7 +33,10 @@ async function fetchList(token) {
     console.warn(`Failed to fetch ${url}: ${response.status}`);
     return [];
   }
-  const html = await response.text();
+  // Upstream uses ISO-8859-1 encoding
+  const buffer = await response.arrayBuffer();
+  const decoder = new TextDecoder("iso-8859-1");
+  const html = decoder.decode(buffer);
   const entries = parseLawEntries(html);
   return entries;
 }
