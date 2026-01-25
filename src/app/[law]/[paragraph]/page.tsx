@@ -281,15 +281,29 @@ function NavigationButton({
   children,
   direction,
 }: NavigationButtonProps) {
-  if (!law || !paragraph) return <div className="w-16" />;
+  if (!law || !paragraph) return <div className="w-24" />;
   return (
     <Link
       href={`/${law}/${paragraph}`}
-      className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"
+      className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
     >
-      {direction === "back" && <span>←</span>}
+      {direction === "back" && (
+        <>
+          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-400">
+            J
+          </kbd>
+          <span>←</span>
+        </>
+      )}
       {children}
-      {direction === "forward" && <span>→</span>}
+      {direction === "forward" && (
+        <>
+          <span>→</span>
+          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-400">
+            L
+          </kbd>
+        </>
+      )}
     </Link>
   );
 }
