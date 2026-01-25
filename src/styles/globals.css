@@ -125,3 +125,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Style definition lists from upstream law HTML */
+.jurAbsatz dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.jurAbsatz dt {
+  font-weight: normal;
+}
+
+.jurAbsatz dd {
+  margin: 0;
+}
