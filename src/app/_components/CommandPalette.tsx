@@ -195,7 +195,7 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
         <Search className="h-4 w-4" />
         <span className="hidden sm:inline">Gesetz öffnen</span>
         <kbd className="bg-muted text-muted-foreground hidden rounded px-1.5 py-0.5 text-[10px] font-semibold sm:inline-flex">
-          ⌘K
+          ⌘ K
         </kbd>
       </Button>
       <CommandDialog open={open} onOpenChange={closeDialog}>
