@@ -2,8 +2,8 @@ import Link from "next/link";
 import { loadLawDirectory } from "@/lib/law-directory";
 import { CommandPalette } from "./CommandPalette";
 
-export async function Header() {
-  const lawDirectory = await loadLawDirectory();
+export function Header() {
+  const lawDirectory = loadLawDirectory();
 
   return (
     <div className="relative z-50 bg-white shadow">

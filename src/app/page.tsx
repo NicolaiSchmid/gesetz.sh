@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { loadLawDirectory } from "@/lib/law-directory";
 
-export default async function Home() {
-  const { laws } = await loadLawDirectory();
+export default function Home() {
+  const { laws } = loadLawDirectory();
 
   // Group laws by first letter
   const groupedLaws = laws.reduce(
