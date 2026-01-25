@@ -213,12 +213,10 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
               <CommandItem
                 onSelect={() => handleNavigate(currentShortcut.value)}
               >
-                <BookOpenText className="mr-2 h-4 w-4" />
+                <BookOpenText className="mr-2 h-4 w-4 text-gray-600" />
                 <div className="flex flex-col">
-                  <span>{currentShortcut.label}</span>
-                  <span className="text-muted-foreground text-xs">
-                    Gerade geöffnet
-                  </span>
+                  <span className="text-gray-900">{currentShortcut.label}</span>
+                  <span className="text-xs text-gray-500">Gerade geöffnet</span>
                 </div>
               </CommandItem>
             </CommandGroup>
@@ -231,15 +229,15 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
                   value={lawMeta.code}
                   onSelect={() => setQuery(`${lawMeta.code}§`)}
                 >
-                  <Landmark className="mr-2 h-4 w-4" />
+                  <Landmark className="mr-2 h-4 w-4 text-gray-600" />
                   <div className="flex flex-col">
-                    <span>
+                    <span className="text-gray-900">
                       {lawMeta.fullTitle ?? lawMeta.title}
-                      <span className="text-muted-foreground ml-1 text-xs">
+                      <span className="ml-1 text-xs text-gray-500">
                         {lawMeta.code.toUpperCase()}
                       </span>
                     </span>
-                    <span className="text-muted-foreground text-xs">
+                    <span className="text-xs text-gray-500">
                       {lawMeta.description}
                     </span>
                   </div>
@@ -255,10 +253,10 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
                   value={item.value}
                   onSelect={() => handleNavigate(item.value)}
                 >
-                  <Landmark className="mr-2 h-4 w-4" />
+                  <Landmark className="mr-2 h-4 w-4 text-gray-600" />
                   <div className="flex flex-col">
-                    <span>{item.label}</span>
-                    <span className="text-muted-foreground text-xs">
+                    <span className="text-gray-900">{item.label}</span>
+                    <span className="text-xs text-gray-500">
                       {item.description}
                     </span>
                   </div>
