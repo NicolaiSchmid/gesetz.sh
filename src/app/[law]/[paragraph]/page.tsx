@@ -16,6 +16,20 @@ const REQUEST_HEADERS: Record<string, string> = {
   "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
 };
 
+const paragraphReferenceRegex = /(§{1,2})\s*(\d+[a-zA-Z]*)/g;
+
+function linkifyParagraphReferences(htmlContent: string, law: string) {
+  return htmlContent.replace(
+    paragraphReferenceRegex,
+    (match: string, symbol: string, paragraph: string) => {
+      if (!paragraph) return match;
+      const slug = paragraph.toLowerCase();
+      const label = `${symbol} ${paragraph}`.trim();
+      return `<a href="/${law}/${slug}" class="text-blue-600 underline hover:text-blue-800">${label}</a>`;
+    },
+  );
+}
+
 type ParagraphData = {
   headers: string[];
   content: string[];
@@ -73,11 +87,15 @@ async function fetchParagraphData(
 
     const content = html
       .querySelectorAll(".jurAbsatz")
-      .map((element: HTMLElement) => element.innerHTML ?? "");
+      .map((element: HTMLElement) =>
+        linkifyParagraphReferences(element.innerHTML ?? "", law),
+      );
 
     const footnotes = html
       .querySelectorAll(".jnfussnote")
-      .map((element: HTMLElement) => element.innerHTML ?? "");
+      .map((element: HTMLElement) =>
+        linkifyParagraphReferences(element.innerHTML ?? "", law),
+      );
 
     const backward = getLinkHref(
       (html.querySelector("#blaettern_zurueck")
