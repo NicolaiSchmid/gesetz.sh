@@ -3,6 +3,12 @@ import { parse, type HTMLElement } from "node-html-parser";
 import flatten from "lodash-es/flatten";
 
 import { env } from "@/env";
+import {
+  SOURCE_CDN_CACHE_CONTROL,
+  SOURCE_REVALIDATE_SECONDS,
+} from "@/lib/source-cache";
+
+export const dynamic = "force-static";
 
 type RouteParams = {
   params: Promise<{
@@ -30,7 +36,7 @@ type ParagraphData = {
 
 async function fetchParagraphData(
   law: string,
-  paragraph: string
+  paragraph: string,
 ): Promise<ParagraphData | null> {
   const sourcePath = `${law.toLowerCase()}/__${paragraph.toLowerCase()}.html`;
 
@@ -47,6 +53,7 @@ async function fetchParagraphData(
   try {
     const response = await fetch(fetchUrl, {
       headers: requestHeaders,
+      next: { revalidate: SOURCE_REVALIDATE_SECONDS },
     });
 
     if (!response.ok) {
@@ -64,8 +71,8 @@ async function fetchParagraphData(
         .map((header: HTMLElement) =>
           header
             .querySelectorAll("h1")
-            .map((heading: HTMLElement) => heading.textContent ?? "")
-        )
+            .map((heading: HTMLElement) => heading.textContent ?? ""),
+        ),
     );
 
     // Get content - exclude elements inside jnfussnote using :not() selector
@@ -141,8 +148,11 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         status: 404,
         headers: {
           "Content-Type": "text/markdown; charset=utf-8",
+          "Cache-Control": SOURCE_CDN_CACHE_CONTROL,
+          "CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
+          "Vercel-CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
         },
-      }
+      },
     );
   }
 
@@ -152,7 +162,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     status: 200,
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
-      "Cache-Control": "public, max-age=3600",
+      "Cache-Control": SOURCE_CDN_CACHE_CONTROL,
+      "CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
+      "Vercel-CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
     },
   });
 }

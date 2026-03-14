@@ -6,6 +6,9 @@ import { parse, type HTMLElement } from "node-html-parser";
 import KeyboardNavigation from "./KeyboardNavigation";
 import { Button } from "@/components/ui/button";
 import { env } from "@/env";
+import { SOURCE_REVALIDATE_SECONDS } from "@/lib/source-cache";
+
+export const dynamic = "force-static";
 
 type PageParams = {
   law: string;
@@ -70,8 +73,6 @@ type ParagraphData = {
   backward?: string;
   forward?: string;
 };
-
-const SOURCE_REVALIDATE_SECONDS = 60 * 60; // 1 hour
 
 function buildSourceUrl(law: string, paragraph: string) {
   return `${DOMAIN}/${law.toLowerCase()}/__${paragraph.toLowerCase()}.html`;

@@ -1,0 +1,4 @@
+export const SOURCE_REVALIDATE_SECONDS = 60 * 60 * 24 * 30;
+export const SOURCE_STALE_WHILE_REVALIDATE_SECONDS = 60 * 60 * 24;
+
+export const SOURCE_CDN_CACHE_CONTROL = `public, max-age=0, s-maxage=${SOURCE_REVALIDATE_SECONDS}, stale-while-revalidate=${SOURCE_STALE_WHILE_REVALIDATE_SECONDS}, stale-if-error=${SOURCE_STALE_WHILE_REVALIDATE_SECONDS}`;
