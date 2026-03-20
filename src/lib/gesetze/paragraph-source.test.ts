@@ -34,6 +34,7 @@ void test("parseParagraphHtml extracts headers, content, footnotes, and navigati
   assert.equal(record.content.length, 1);
   assert.equal(record.footnotes.length, 1);
   assert.match(record.content[0]?.html ?? "", /href="\/bgb\/434"/);
+  assert.match(record.content[0]?.markdown ?? "", /\[§ 434\]\(\/bgb\/434\)/);
   assert.equal(record.navigation.previous, "432");
   assert.equal(record.navigation.next, "434");
 });

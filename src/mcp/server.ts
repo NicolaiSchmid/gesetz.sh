@@ -46,7 +46,6 @@ const paragraphResultSchema = z.object({
   paragraph: z.string(),
   citation: z.string(),
   title: z.string(),
-  markdown: z.string(),
   headers: z.array(z.string()),
   content: z.array(z.string()),
   footnotes: z.array(z.string()),
@@ -92,10 +91,9 @@ function toParagraphResult(record: NonNullable<Awaited<ReturnType<typeof fetchPa
     paragraph: record.paragraph,
     citation: record.citation,
     title: record.title,
-    markdown: paragraphRecordToMarkdown(record),
-    headers: record.headers.map((header) => header.text),
-    content: record.content.map((content) => content.text),
-    footnotes: record.footnotes.map((footnote) => footnote.text),
+    headers: record.headers.map((header) => header.markdown || header.text),
+    content: record.content.map((content) => content.markdown || content.text),
+    footnotes: record.footnotes.map((footnote) => footnote.markdown || footnote.text),
     navigation: record.navigation,
     sourceUrl: record.sourceUrl,
     canonicalUrl: record.canonicalUrl,
@@ -257,7 +255,7 @@ server.registerTool(
       content: [
         {
           type: "text" as const,
-          text: structuredContent.markdown,
+          text: paragraphRecordToMarkdown(record),
         },
       ],
       structuredContent,
@@ -329,7 +327,11 @@ server.registerTool(
           return `${result.law.toUpperCase()} § ${result.paragraph} - not found`;
         }
 
-        return result.data?.markdown ?? buildParagraphCitation(result.law, result.paragraph);
+        return [
+          `# ${buildParagraphCitation(result.law, result.paragraph)}`,
+          "",
+          ...(result.data?.content ?? []),
+        ].join("\n");
       })
       .join("\n");
 
@@ -396,7 +398,13 @@ server.registerTool(
         {
           type: "text" as const,
           text:
-            structuredContent.target?.markdown ??
+            (structuredContent.target
+              ? [
+                  `# ${structuredContent.target.citation}`,
+                  "",
+                  ...structuredContent.target.content,
+                ].join("\n")
+              : undefined) ??
             `${structuredContent.targetCitation}\n${structuredContent.targetUrl}`,
         },
       ],

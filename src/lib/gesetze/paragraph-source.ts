@@ -20,6 +20,7 @@ const paragraphReferenceRegex = /(§{1,2}|&#167;)\s*(\d+[a-zA-Z]*)/g;
 export interface ParagraphFragment {
   html: string;
   text: string;
+  markdown: string;
 }
 
 export interface ParsedParagraphRecord {
@@ -66,6 +67,27 @@ function normalizeText(value: string): string {
   return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function htmlFragmentToMarkdown(html: string): string {
+  return normalizeText(
+    html
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(
+        /<a\s+[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gi,
+        (_match: string, href: string, label: string) =>
+          `[${normalizeText(label)}](${href})`,
+      )
+      .replace(/<\/?(strong|b)>/gi, "**")
+      .replace(/<\/?(em|i)>/gi, "_")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">"),
+  );
+}
+
 function linkifyParagraphReferences(htmlContent: string, law: string): string {
   return htmlContent.replace(
     paragraphReferenceRegex,
@@ -91,9 +113,11 @@ function isInsideFootnote(element: HTMLElement): boolean {
 }
 
 function toFragment(element: HTMLElement, law: string): ParagraphFragment {
+  const html = linkifyParagraphReferences(element.innerHTML ?? "", law);
   return {
-    html: linkifyParagraphReferences(element.innerHTML ?? "", law),
+    html,
     text: normalizeText(element.textContent ?? ""),
+    markdown: htmlFragmentToMarkdown(html),
   };
 }
 
@@ -112,6 +136,7 @@ export function parseParagraphHtml(
       header.querySelectorAll("h1").map((heading: HTMLElement) => ({
         html: heading.innerHTML ?? "",
         text: normalizeText(heading.textContent ?? ""),
+        markdown: htmlFragmentToMarkdown(heading.innerHTML ?? ""),
       })),
     )
     .filter((header) => header.html || header.text);
