@@ -46,6 +46,30 @@ Open the command palette with `⌘K` / `Ctrl+K`. The quick-jump accepts combos l
 - **tRPC + React Query** – fully typed client/server boundary
 - **Cloudflare Worker proxy** – keeps upstream content reachable from Vercel
 
+## MCP Server
+
+This repo now includes a read-only MCP server for law lookup and exact
+paragraph retrieval.
+
+Run it locally over `stdio`:
+
+```bash
+pnpm mcp
+```
+
+Current tools:
+
+- `search_laws`
+- `resolve_reference`
+- `get_law_info`
+- `get_paragraph`
+- `get_paragraphs`
+- `navigate_paragraph`
+- `extract_citations`
+
+The MCP server reuses the same shared parsing layer as the web app, so the app
+routes and MCP tools stay in sync.
+
 ## Proxy Config (optional but recommended)
 
 1. Deploy the worker in `worker/` with `wrangler deploy` (or connect it via Cloudflare’s GitHub integration).

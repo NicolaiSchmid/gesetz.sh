@@ -8,6 +8,11 @@ import { Search, BookOpenText, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { LawDirectoryEntry } from "@/lib/law-directory";
 import {
+  buildLawAliasEntries,
+  resolveLawReference,
+} from "@/lib/gesetze/reference";
+import { searchLawDirectory } from "@/lib/law-directory";
+import {
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -23,83 +28,6 @@ const QUICK_LINKS = [
   { label: "BGB § 433", value: "bgb§433", description: "Kaufvertrag" },
   { label: "StGB § 242", value: "stgb§242", description: "Diebstahl" },
 ];
-
-interface AliasEntry {
-  token: string;
-  code: string;
-}
-
-function buildAliasEntries(lawDirectory: LawDirectoryEntry[]): AliasEntry[] {
-  const entries: AliasEntry[] = [];
-
-  for (const law of lawDirectory) {
-    const aliasTokens = new Set<string>();
-    aliasTokens.add(law.code);
-    aliasTokens.add(law.title);
-    if (law.fullTitle) aliasTokens.add(law.fullTitle);
-    if (law.description) aliasTokens.add(law.description);
-
-    const textToSplit = `${law.fullTitle ?? ""} ${law.description ?? ""}`;
-    const keywords = textToSplit.split(/[^a-zA-Zäöüß0-9]+/i).filter(Boolean);
-
-    for (const keyword of keywords) {
-      aliasTokens.add(keyword);
-    }
-
-    for (const token of aliasTokens) {
-      const normalized = token.replace(/\s+/g, "").toLowerCase();
-      if (normalized.length < 2) continue;
-      entries.push({ token: normalized, code: law.code });
-    }
-  }
-
-  return entries.sort((a, b) => b.token.length - a.token.length);
-}
-
-function processEntry(
-  raw: string,
-  aliasEntries: AliasEntry[],
-  fallbackLaw?: string,
-) {
-  let sanitized = raw.replace(/\s+/g, "").toLowerCase();
-  if (!sanitized) return { paragraph: undefined };
-
-  let detectedLaw: string | undefined;
-  for (const { token, code } of aliasEntries) {
-    if (sanitized.startsWith(token) && token.length > 0) {
-      detectedLaw = code;
-      sanitized = sanitized.slice(token.length);
-      break;
-    }
-  }
-
-  if (sanitized.startsWith("§")) {
-    sanitized = sanitized.slice(1);
-  }
-
-  if (!sanitized.includes("§")) {
-    const pattern = /^([a-zäöüß]+)?(\d.*)$/i;
-    const match = pattern.exec(sanitized);
-    if (match) {
-      return {
-        law: match[1] ?? detectedLaw ?? fallbackLaw,
-        paragraph: match[2],
-      };
-    }
-    return { law: detectedLaw ?? fallbackLaw, paragraph: sanitized };
-  }
-
-  const parts = sanitized.split("§").filter(Boolean);
-  if (parts.length === 0) return { paragraph: undefined };
-
-  const lawFromInput = parts.length > 1 ? parts[0] : undefined;
-  const detectedParagraph = parts[parts.length - 1];
-
-  return {
-    law: detectedLaw ?? lawFromInput ?? fallbackLaw,
-    paragraph: detectedParagraph,
-  };
-}
 
 interface CommandPaletteProps {
   lawDirectory: LawDirectoryEntry[];
@@ -118,7 +46,7 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
   const currentParagraph = pathMatch?.[2];
 
   const aliasEntries = React.useMemo(
-    () => buildAliasEntries(lawDirectory),
+    () => buildLawAliasEntries(lawDirectory),
     [lawDirectory],
   );
   const normalizedTextQuery = React.useMemo(
@@ -137,7 +65,7 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
 
   const handleNavigate = React.useCallback(
     (input: string) => {
-      const { law: newLaw, paragraph: newParagraph } = processEntry(
+      const { law: newLaw, paragraph: newParagraph } = resolveLawReference(
         input,
         aliasEntries,
         currentLaw,
@@ -169,19 +97,7 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
   );
 
   const lawMatches = React.useMemo(() => {
-    const filtered = lawDirectory.filter((lawMeta) => {
-      if (!normalizedTextQuery) return true;
-      const tokens = [
-        lawMeta.code,
-        lawMeta.title,
-        lawMeta.fullTitle ?? "",
-        lawMeta.description ?? "",
-      ];
-      return tokens.some((token) =>
-        token.toLowerCase().includes(normalizedTextQuery),
-      );
-    });
-    return filtered.slice(0, 6);
+    return searchLawDirectory(lawDirectory, normalizedTextQuery, 6);
   }, [lawDirectory, normalizedTextQuery]);
 
   const closeDialog = (value: boolean) => {
