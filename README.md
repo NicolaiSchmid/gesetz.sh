@@ -68,7 +68,8 @@ Current tools:
 - `extract_citations`
 
 The MCP server reuses the same shared parsing layer as the web app, so the app
-routes and MCP tools stay in sync.
+routes and MCP tools stay in sync. Paragraph tools return markdown-formatted
+law text plus structured metadata.
 
 ## Proxy Config (optional but recommended)
 

@@ -19,7 +19,10 @@ import {
   buildParagraphCitation,
   resolveLawReference,
 } from "../lib/gesetze/reference";
-import { fetchParagraphRecord } from "../lib/gesetze/paragraph-source";
+import {
+  fetchParagraphRecord,
+  paragraphRecordToMarkdown,
+} from "../lib/gesetze/paragraph-source";
 
 const server = new McpServer({
   name: "gesetze",
@@ -43,6 +46,7 @@ const paragraphResultSchema = z.object({
   paragraph: z.string(),
   citation: z.string(),
   title: z.string(),
+  markdown: z.string(),
   headers: z.array(z.string()),
   content: z.array(z.string()),
   footnotes: z.array(z.string()),
@@ -88,6 +92,7 @@ function toParagraphResult(record: NonNullable<Awaited<ReturnType<typeof fetchPa
     paragraph: record.paragraph,
     citation: record.citation,
     title: record.title,
+    markdown: paragraphRecordToMarkdown(record),
     headers: record.headers.map((header) => header.text),
     content: record.content.map((content) => content.text),
     footnotes: record.footnotes.map((footnote) => footnote.text),
@@ -252,7 +257,7 @@ server.registerTool(
       content: [
         {
           type: "text" as const,
-          text: `${structuredContent.citation}\n${structuredContent.title}\n${structuredContent.sourceUrl}`,
+          text: structuredContent.markdown,
         },
       ],
       structuredContent,
@@ -319,11 +324,13 @@ server.registerTool(
     };
 
     const summary = results
-      .map((result) =>
-        result.found
-          ? buildParagraphCitation(result.law, result.paragraph)
-          : `${result.law.toUpperCase()} § ${result.paragraph} - not found`,
-      )
+      .map((result) => {
+        if (!result.found) {
+          return `${result.law.toUpperCase()} § ${result.paragraph} - not found`;
+        }
+
+        return result.data?.markdown ?? buildParagraphCitation(result.law, result.paragraph);
+      })
       .join("\n");
 
     return {
@@ -388,7 +395,9 @@ server.registerTool(
       content: [
         {
           type: "text" as const,
-          text: `${structuredContent.targetCitation}\n${structuredContent.targetUrl}`,
+          text:
+            structuredContent.target?.markdown ??
+            `${structuredContent.targetCitation}\n${structuredContent.targetUrl}`,
         },
       ],
       structuredContent,
