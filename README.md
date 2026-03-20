@@ -63,14 +63,14 @@ Current scope:
 
 - local law directory search
 - live exact paragraph retrieval from `gesetze-im-internet.de`
-- `stdio` transport only
+- streamable HTTP transport at `/mcp`
+- `stdio` transport for local development
 - no global full-text search across all legal text yet
-- no HTTP MCP endpoint yet
 
 The MCP server reuses the same shared parsing layer as the web app, so the app
 routes and MCP tools stay in sync.
 
-### Run It
+### Run It Locally
 
 Start the server locally over `stdio`:
 
@@ -87,6 +87,20 @@ GESETZE_PROXY_API_KEY=<same key as above>
 
 If those env vars are absent, paragraph fetches go directly to
 `gesetze-im-internet.de`.
+
+### HTTP Endpoint
+
+The Next.js app also exposes the MCP server over Streamable HTTP at:
+
+```text
+/mcp
+```
+
+Example:
+
+```text
+https://your-domain.example/mcp
+```
 
 ### Tool List
 
