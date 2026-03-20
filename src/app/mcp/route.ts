@@ -20,7 +20,7 @@ async function handleMcp(request: NextRequest, parsedBody?: unknown) {
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
+  const body: unknown = await request.json();
   return await handleMcp(request, body);
 }
 
