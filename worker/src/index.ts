@@ -56,9 +56,14 @@ export default {
     }
 
     // Validate path format to prevent abuse (allow law paths and Teilliste)
-    const lawPathPattern = /^[a-z0-9_-]+\/__[a-z0-9_-]+\.html$/i;
+    const lawParagraphPathPattern = /^[a-z0-9_-]+\/__[a-z0-9_-]+\.html$/i;
+    const lawIndexPathPattern = /^[a-z0-9_-]+\/index\.html$/i;
     const teillistePattern = /^Teilliste_[A-Z1-9]\.html$/;
-    if (!lawPathPattern.test(path) && !teillistePattern.test(path)) {
+    if (
+      !lawParagraphPathPattern.test(path) &&
+      !lawIndexPathPattern.test(path) &&
+      !teillistePattern.test(path)
+    ) {
       return new Response(JSON.stringify({ error: "Invalid path format" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
