@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import KeyboardNavigation from "./KeyboardNavigation";
 import { Button } from "@/components/ui/button";
+import { getPrerenderManifest } from "@/lib/gesetze/prerender-routes";
 import {
   buildParagraphSourceUrl,
   fetchParagraphRecord,
@@ -10,6 +11,19 @@ import {
 import { SOURCE_REVALIDATE_SECONDS } from "@/lib/source-cache";
 
 export const dynamic = "force-static";
+export const dynamicParams = true;
+export const revalidate = SOURCE_REVALIDATE_SECONDS;
+
+export function generateStaticParams(): PageParams[] {
+  const manifest = getPrerenderManifest();
+
+  return (manifest.laws ?? []).flatMap((law) =>
+    (law.paragraphs ?? []).map((paragraph) => ({
+      law: law.code,
+      paragraph,
+    })),
+  );
+}
 
 type PageParams = {
   law: string;

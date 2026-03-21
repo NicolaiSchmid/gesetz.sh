@@ -16,8 +16,8 @@
     "start": "next start",
     "test": "tsx --test src/**/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "prebuild": "node scripts/build-law-index.mjs",
-    "predev": "node scripts/build-law-index.mjs"
+    "prebuild": "node scripts/build-law-index.mjs && node scripts/build-law-prerender-manifest.mjs",
+    "predev": "node scripts/build-law-index.mjs && node scripts/build-law-prerender-manifest.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
