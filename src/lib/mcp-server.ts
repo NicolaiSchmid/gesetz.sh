@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types.js";
 import * as z from "zod/v3";
 
 import {
@@ -92,6 +93,18 @@ function toParagraphResult(record: NonNullable<Awaited<ReturnType<typeof fetchPa
   };
 }
 
+function readOnlyAnnotations(
+  title: string,
+  openWorldHint = false,
+): ToolAnnotations {
+  return {
+    title,
+    readOnlyHint: true,
+    idempotentHint: true,
+    openWorldHint,
+  };
+}
+
 export function createMcpServer() {
   const server = new McpServer({
     name: "gesetze",
@@ -104,6 +117,7 @@ export function createMcpServer() {
       title: "Search Laws",
       description:
         "Search the local law directory by law code, title, full title, or description.",
+      annotations: readOnlyAnnotations("Search Laws"),
       inputSchema: {
         query: z.string().min(1).describe("Law search query"),
         limit: z.number().int().min(1).max(25).optional(),
@@ -148,6 +162,7 @@ export function createMcpServer() {
       title: "Resolve Reference",
       description:
         "Resolve a loose legal reference such as 'bgb 433', 'bgb§433', or '§ 433' into a canonical law and paragraph path.",
+      annotations: readOnlyAnnotations("Resolve Reference"),
       inputSchema: {
         input: z.string().min(1).describe("Loose legal reference"),
         currentLaw: z.string().optional().describe("Fallback law code"),
@@ -198,6 +213,7 @@ export function createMcpServer() {
     {
       title: "Get Law Info",
       description: "Get directory metadata for an exact law code.",
+      annotations: readOnlyAnnotations("Get Law Info"),
       inputSchema: {
         law: z.string().min(1).describe("Law code, e.g. bgb"),
       },
@@ -235,6 +251,7 @@ export function createMcpServer() {
       title: "Get Paragraph",
       description:
         "Fetch the exact text of a legal paragraph with headers, content, footnotes, and neighboring paragraph ids.",
+      annotations: readOnlyAnnotations("Get Paragraph", true),
       inputSchema: {
         law: z.string().min(1).describe("Law code, e.g. bgb"),
         paragraph: z.string().min(1).describe("Paragraph id, e.g. 433"),
@@ -267,6 +284,7 @@ export function createMcpServer() {
       title: "Get Paragraphs",
       description:
         "Fetch multiple exact legal paragraphs in a single tool call. Individual failures are returned per item.",
+      annotations: readOnlyAnnotations("Get Paragraphs", true),
       inputSchema: {
         items: z
           .array(
@@ -346,6 +364,7 @@ export function createMcpServer() {
       title: "Navigate Paragraph",
       description:
         "Resolve the previous or next valid paragraph using upstream navigation links instead of guessing numeric neighbors.",
+      annotations: readOnlyAnnotations("Navigate Paragraph", true),
       inputSchema: {
         law: z.string().min(1),
         paragraph: z.string().min(1),
@@ -417,6 +436,7 @@ export function createMcpServer() {
       title: "Extract Citations",
       description:
         "Extract simple paragraph citations such as '§ 433' from free text and optionally attach the current law as context.",
+      annotations: readOnlyAnnotations("Extract Citations"),
       inputSchema: {
         text: z.string().min(1),
         currentLaw: z.string().optional(),
