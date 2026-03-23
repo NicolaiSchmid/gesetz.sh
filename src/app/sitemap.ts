@@ -44,12 +44,13 @@ function extractParagraphSlugs(htmlText: string): string[] {
   const root = parse(htmlText);
   const links = root.querySelectorAll('#paddingLR12 a[href$=".html"]');
   const slugs = new Set<string>();
+  const paragraphHrefPattern = /^_{2,}(.+)\.html$/;
 
   for (const link of links) {
     const href = link.getAttribute("href")?.trim();
     if (!href) continue;
 
-    const match = href.match(/^_{2,}(.+)\.html$/);
+    const match = paragraphHrefPattern.exec(href);
     if (!match?.[1]) continue;
 
     slugs.add(match[1].toLowerCase());
