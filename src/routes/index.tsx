@@ -3,6 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { loadLawDirectory } from "@/lib/law-directory";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    links: [{ rel: "canonical", href: "https://gesetz.sh" }],
+  }),
   component: Home,
 });
 

@@ -1,5 +1,7 @@
 import { parse, type HTMLElement } from "node-html-parser";
 
+import { env } from "@/env";
+
 import {
   buildCanonicalUrl,
   buildParagraphCitation,
@@ -69,8 +71,8 @@ export interface ParagraphFetchOptions {
 }
 
 function getProxyConfig() {
-  const url = process.env.GESETZE_PROXY_URL;
-  const apiKey = process.env.GESETZE_PROXY_API_KEY;
+  const url = env.GESETZE_PROXY_URL;
+  const apiKey = env.GESETZE_PROXY_API_KEY;
 
   if (!url || !apiKey) {
     return null;

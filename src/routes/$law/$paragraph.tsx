@@ -30,6 +30,8 @@ export const Route = createFileRoute("/$law/$paragraph")({
     const lawUpper = params.law.toUpperCase();
     const title = `${lawUpper} § ${params.paragraph}`;
     const description = `${lawUpper} § ${params.paragraph} - Gesetzestext online lesen auf Gesetz.sh`;
+    const canonicalUrl = `https://gesetz.sh/${params.law}/${params.paragraph}`;
+    const ogImageUrl = `${canonicalUrl}/opengraph-image`;
 
     return {
       meta: [
@@ -40,12 +42,15 @@ export const Route = createFileRoute("/$law/$paragraph")({
         { property: "og:type", content: "article" },
         {
           property: "og:url",
-          content: `https://gesetz.sh/${params.law}/${params.paragraph}`,
+          content: canonicalUrl,
         },
-        { name: "twitter:card", content: "summary" },
+        { property: "og:image", content: ogImageUrl },
+        { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: `${title} | Gesetz.sh` },
         { name: "twitter:description", content: description },
+        { name: "twitter:image", content: ogImageUrl },
       ],
+      links: [{ rel: "canonical", href: canonicalUrl }],
     };
   },
   component: LawParagraphPage,

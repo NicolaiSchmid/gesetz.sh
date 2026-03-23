@@ -11,10 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as OpengraphImageRouteImport } from './routes/opengraph-image'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LawParagraphRouteImport } from './routes/$law/$paragraph'
 import { Route as ApiLawParagraphRouteImport } from './routes/api/$law/$paragraph'
+import { Route as LawParagraphOpengraphImageRouteImport } from './routes/$law/$paragraph/opengraph-image'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -24,6 +26,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpengraphImageRoute = OpengraphImageRouteImport.update({
+  id: '/opengraph-image',
+  path: '/opengraph-image',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -46,30 +53,42 @@ const ApiLawParagraphRoute = ApiLawParagraphRouteImport.update({
   path: '/api/$law/$paragraph',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LawParagraphOpengraphImageRoute =
+  LawParagraphOpengraphImageRouteImport.update({
+    id: '/opengraph-image',
+    path: '/opengraph-image',
+    getParentRoute: () => LawParagraphRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/mcp': typeof McpRoute
+  '/opengraph-image': typeof OpengraphImageRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/$law/$paragraph': typeof LawParagraphRoute
+  '/$law/$paragraph': typeof LawParagraphRouteWithChildren
+  '/$law/$paragraph/opengraph-image': typeof LawParagraphOpengraphImageRoute
   '/api/$law/$paragraph': typeof ApiLawParagraphRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/mcp': typeof McpRoute
+  '/opengraph-image': typeof OpengraphImageRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/$law/$paragraph': typeof LawParagraphRoute
+  '/$law/$paragraph': typeof LawParagraphRouteWithChildren
+  '/$law/$paragraph/opengraph-image': typeof LawParagraphOpengraphImageRoute
   '/api/$law/$paragraph': typeof ApiLawParagraphRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/mcp': typeof McpRoute
+  '/opengraph-image': typeof OpengraphImageRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/$law/$paragraph': typeof LawParagraphRoute
+  '/$law/$paragraph': typeof LawParagraphRouteWithChildren
+  '/$law/$paragraph/opengraph-image': typeof LawParagraphOpengraphImageRoute
   '/api/$law/$paragraph': typeof ApiLawParagraphRoute
 }
 export interface FileRouteTypes {
@@ -77,34 +96,41 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/mcp'
+    | '/opengraph-image'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/$law/$paragraph'
+    | '/$law/$paragraph/opengraph-image'
     | '/api/$law/$paragraph'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/mcp'
+    | '/opengraph-image'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/$law/$paragraph'
+    | '/$law/$paragraph/opengraph-image'
     | '/api/$law/$paragraph'
   id:
     | '__root__'
     | '/'
     | '/mcp'
+    | '/opengraph-image'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/$law/$paragraph'
+    | '/$law/$paragraph/opengraph-image'
     | '/api/$law/$paragraph'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   McpRoute: typeof McpRoute
+  OpengraphImageRoute: typeof OpengraphImageRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  LawParagraphRoute: typeof LawParagraphRoute
+  LawParagraphRoute: typeof LawParagraphRouteWithChildren
   ApiLawParagraphRoute: typeof ApiLawParagraphRoute
 }
 
@@ -122,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/opengraph-image': {
+      id: '/opengraph-image'
+      path: '/opengraph-image'
+      fullPath: '/opengraph-image'
+      preLoaderRoute: typeof OpengraphImageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -152,15 +185,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLawParagraphRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$law/$paragraph/opengraph-image': {
+      id: '/$law/$paragraph/opengraph-image'
+      path: '/opengraph-image'
+      fullPath: '/$law/$paragraph/opengraph-image'
+      preLoaderRoute: typeof LawParagraphOpengraphImageRouteImport
+      parentRoute: typeof LawParagraphRoute
+    }
   }
 }
+
+interface LawParagraphRouteChildren {
+  LawParagraphOpengraphImageRoute: typeof LawParagraphOpengraphImageRoute
+}
+
+const LawParagraphRouteChildren: LawParagraphRouteChildren = {
+  LawParagraphOpengraphImageRoute: LawParagraphOpengraphImageRoute,
+}
+
+const LawParagraphRouteWithChildren = LawParagraphRoute._addFileChildren(
+  LawParagraphRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   McpRoute: McpRoute,
+  OpengraphImageRoute: OpengraphImageRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  LawParagraphRoute: LawParagraphRoute,
+  LawParagraphRoute: LawParagraphRouteWithChildren,
   ApiLawParagraphRoute: ApiLawParagraphRoute,
 }
 export const routeTree = rootRouteImport
