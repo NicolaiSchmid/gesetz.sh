@@ -17,6 +17,12 @@ db.sqlite
 /.next/
 /out/
 next-env.d.ts
+.tanstack
+.wrangler
+.output
+.vinxi
+dist
+dist-ssr
 
 # generated at build time
 /src/generated/

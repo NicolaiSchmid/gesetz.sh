@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useRouter, usePathname } from "next/navigation";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { Search, BookOpenText, Landmark } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -34,8 +34,10 @@ interface CommandPaletteProps {
 }
 
 export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
-  const router = useRouter();
-  const pathname = usePathname();
+  const navigate = useNavigate();
+  const pathname = useLocation({
+    select: (location) => location.pathname,
+  });
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
 
@@ -75,11 +77,15 @@ export function CommandPalette({ lawDirectory }: CommandPaletteProps) {
       setOpen(false);
       setQuery("");
 
-      void router.push(
-        `/${newLaw.toLowerCase()}/${newParagraph.toLowerCase()}`,
-      );
+      void navigate({
+        to: "/$law/$paragraph",
+        params: {
+          law: newLaw.toLowerCase(),
+          paragraph: newParagraph.toLowerCase(),
+        },
+      });
     },
-    [aliasEntries, currentLaw, router],
+    [aliasEntries, currentLaw, navigate],
   );
 
   const currentShortcut =
