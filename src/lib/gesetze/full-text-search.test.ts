@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { parseFullTextSearchHtml } from "./full-text-search";
 
-test("parseFullTextSearchHtml parses paragraph hits", () => {
+void test("parseFullTextSearchHtml parses paragraph hits", () => {
   const html = `
     <div id="paddingLR12">
       <h2>Trefferliste f&uuml;r 'kaufvertrag'</h2>
@@ -58,7 +58,7 @@ test("parseFullTextSearchHtml parses paragraph hits", () => {
   });
 });
 
-test("parseFullTextSearchHtml handles no results pages", () => {
+void test("parseFullTextSearchHtml handles no results pages", () => {
   const html = `
     <div id="paddingLR12">
       <h2 class="rot">Keine Treffer gefunden f&uuml;r 'foo'</h2>
