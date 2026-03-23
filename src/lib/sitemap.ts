@@ -1,14 +1,13 @@
-import type { MetadataRoute } from "next";
 import { parse } from "node-html-parser";
 
 import { loadLawDirectory } from "@/lib/law-directory";
-import { SOURCE_REVALIDATE_SECONDS } from "@/lib/source-cache";
 
 export const BASE_URL = "https://gesetz.sh";
 const SOURCE_BASE_URL = "https://www.gesetze-im-internet.de";
 const SOURCE_FETCH_TIMEOUT_MS = 10_000;
 const SITEMAP_FETCH_CONCURRENCY = 8;
 const SITEMAP_MAX_URLS = 50_000;
+const SITEMAP_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
 const REQUEST_HEADERS: Record<string, string> = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Gesetz.sh Sitemap/1.0 Chrome/120.0.0.0 Safari/537.36",
@@ -17,32 +16,27 @@ const REQUEST_HEADERS: Record<string, string> = {
 };
 const paragraphHrefPattern = /^_{2,}(.+)\.html$/;
 
-function getProxyConfig() {
-  const url = process.env.GESETZE_PROXY_URL;
-  const apiKey = process.env.GESETZE_PROXY_API_KEY;
-
-  if (!url || !apiKey) {
-    return null;
-  }
-
-  return { url, apiKey };
+export interface SitemapEntry {
+  url: string;
+  lastModified?: string | Date;
+  changeFrequency?:
+    | "always"
+    | "hourly"
+    | "daily"
+    | "weekly"
+    | "monthly"
+    | "yearly"
+    | "never";
+  priority?: number;
 }
 
-function buildLawIndexUrl(law: string) {
-  const proxy = getProxyConfig();
-  const path = `${law.toLowerCase()}/index.html`;
-  return proxy ? `${proxy.url}/${path}` : `${SOURCE_BASE_URL}/${path}`;
-}
-
-function getRequestHeaders() {
-  const proxy = getProxyConfig();
-  return proxy
-    ? {
-        ...REQUEST_HEADERS,
-        "X-API-Key": proxy.apiKey,
-      }
-    : REQUEST_HEADERS;
-}
+let cachedSitemapChunks:
+  | {
+      expiresAt: number;
+      chunks: SitemapEntry[][];
+    }
+  | null = null;
+let sitemapChunksPromise: Promise<SitemapEntry[][]> | null = null;
 
 function extractParagraphSlugs(htmlText: string): string[] {
   const root = parse(htmlText);
@@ -68,11 +62,13 @@ async function fetchLawParagraphSlugs(law: string): Promise<string[]> {
   const fallback = ["1"];
 
   try {
-    const response = await fetch(buildLawIndexUrl(law), {
-      headers: getRequestHeaders(),
-      next: { revalidate: SOURCE_REVALIDATE_SECONDS },
-      signal: controller.signal,
-    });
+    const response = await fetch(
+      `${SOURCE_BASE_URL}/${law.toLowerCase()}/index.html`,
+      {
+        headers: REQUEST_HEADERS,
+        signal: controller.signal,
+      },
+    );
 
     if (!response.ok) {
       return fallback;
@@ -112,10 +108,8 @@ async function mapWithConcurrencyLimit<T, R>(
   return results;
 }
 
-function chunkSitemapEntries(
-  entries: MetadataRoute.Sitemap,
-): MetadataRoute.Sitemap[] {
-  const chunks: MetadataRoute.Sitemap[] = [];
+function chunkSitemapEntries(entries: SitemapEntry[]): SitemapEntry[][] {
+  const chunks: SitemapEntry[][] = [];
 
   for (let index = 0; index < entries.length; index += SITEMAP_MAX_URLS) {
     chunks.push(entries.slice(index, index + SITEMAP_MAX_URLS));
@@ -124,11 +118,11 @@ function chunkSitemapEntries(
   return chunks.length > 0 ? chunks : [[]];
 }
 
-export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
+export async function getSitemapEntries(): Promise<SitemapEntry[]> {
   const { laws } = loadLawDirectory();
   const now = new Date();
 
-  const staticPages: MetadataRoute.Sitemap = [
+  const staticPages: SitemapEntry[] = [
     {
       url: BASE_URL,
       lastModified: now,
@@ -146,12 +140,12 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     }),
   );
 
-  const lawPages: MetadataRoute.Sitemap = paragraphSlugsByLaw.flatMap(
+  const lawPages: SitemapEntry[] = paragraphSlugsByLaw.flatMap(
     ({ law, paragraphs }) =>
       paragraphs.map((paragraph) => ({
         url: `${BASE_URL}/${law}/${paragraph}`,
         lastModified: now,
-        changeFrequency: "monthly" as const,
+        changeFrequency: "monthly",
         priority: paragraph === "1" ? 0.8 : 0.7,
       })),
   );
@@ -159,8 +153,31 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
   return [...staticPages, ...lawPages];
 }
 
-export async function getSitemapChunks(): Promise<MetadataRoute.Sitemap[]> {
-  return chunkSitemapEntries(await getSitemapEntries());
+export async function getSitemapChunks(): Promise<SitemapEntry[][]> {
+  const now = Date.now();
+
+  if (cachedSitemapChunks && cachedSitemapChunks.expiresAt > now) {
+    return cachedSitemapChunks.chunks;
+  }
+
+  if (sitemapChunksPromise) {
+    return sitemapChunksPromise;
+  }
+
+  sitemapChunksPromise = getSitemapEntries()
+    .then((entries) => {
+      const chunks = chunkSitemapEntries(entries);
+      cachedSitemapChunks = {
+        expiresAt: now + SITEMAP_CACHE_TTL_MS,
+        chunks,
+      };
+      return chunks;
+    })
+    .finally(() => {
+      sitemapChunksPromise = null;
+    });
+
+  return sitemapChunksPromise;
 }
 
 function escapeXml(value: string): string {
@@ -178,7 +195,7 @@ function renderLastModified(value: string | Date | undefined): string {
   return `<lastmod>${escapeXml(formatted)}</lastmod>`;
 }
 
-export function buildUrlSetXml(entries: MetadataRoute.Sitemap): string {
+export function buildUrlSetXml(entries: SitemapEntry[]): string {
   const urls = entries
     .map((entry) => {
       const changeFrequency = entry.changeFrequency
