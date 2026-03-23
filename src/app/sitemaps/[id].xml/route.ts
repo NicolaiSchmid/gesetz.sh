@@ -13,9 +13,13 @@ export async function generateStaticParams() {
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  context?: { params?: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
+  const { id } = (await context?.params) ?? {};
+  if (!id) {
+    return new Response("Not Found", { status: 404 });
+  }
+
   const index = Number(id);
 
   if (!Number.isInteger(index) || index < 0) {
