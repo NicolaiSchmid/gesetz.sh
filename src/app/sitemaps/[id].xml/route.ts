@@ -13,9 +13,11 @@ export async function generateStaticParams() {
 
 export async function GET(
   _request: Request,
-  context?: { params?: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> } = {
+    params: Promise.resolve({ id: "" }),
+  },
 ) {
-  const { id } = (await context?.params) ?? {};
+  const { id } = await context.params;
   if (!id) {
     return new Response("Not Found", { status: 404 });
   }
