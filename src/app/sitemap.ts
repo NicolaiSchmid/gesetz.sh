@@ -6,6 +6,7 @@ import { SOURCE_REVALIDATE_SECONDS } from "@/lib/source-cache";
 
 const BASE_URL = "https://gesetz.sh";
 const SOURCE_BASE_URL = "https://www.gesetze-im-internet.de";
+const SOURCE_FETCH_TIMEOUT_MS = 10_000;
 const REQUEST_HEADERS: Record<string, string> = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Gesetz.sh Sitemap/1.0 Chrome/120.0.0.0 Safari/537.36",
@@ -60,10 +61,14 @@ function extractParagraphSlugs(htmlText: string): string[] {
 }
 
 async function fetchLawParagraphSlugs(law: string): Promise<string[]> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), SOURCE_FETCH_TIMEOUT_MS);
+
   try {
     const response = await fetch(buildLawIndexUrl(law), {
       headers: getRequestHeaders(),
       next: { revalidate: SOURCE_REVALIDATE_SECONDS },
+      signal: controller.signal,
     });
 
     if (!response.ok) {
@@ -75,6 +80,8 @@ async function fetchLawParagraphSlugs(law: string): Promise<string[]> {
     return extractParagraphSlugs(decoder.decode(buffer));
   } catch {
     return [];
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
