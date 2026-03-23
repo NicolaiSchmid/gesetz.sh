@@ -1,10 +1,9 @@
 import { buildUrlSetXml, getSitemapChunks } from "@/lib/sitemap";
 import {
   SOURCE_CDN_CACHE_CONTROL,
-  SOURCE_REVALIDATE_SECONDS,
 } from "@/lib/source-cache";
 
-export const revalidate = SOURCE_REVALIDATE_SECONDS;
+export const revalidate = 60 * 60 * 24 * 30;
 
 export async function GET(
   _request: Request,
