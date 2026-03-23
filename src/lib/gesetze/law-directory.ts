@@ -1,4 +1,4 @@
-import lawIndexData from "../../generated/law-index.json";
+import lawIndexData from "../../generated/law-index.json" with { type: "json" };
 
 export interface LawDirectoryEntry {
   code: string;

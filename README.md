@@ -63,9 +63,9 @@ Current scope:
 
 - local law directory search
 - live exact paragraph retrieval from `gesetze-im-internet.de`
+- live upstream full-text search across legal texts
 - streamable HTTP transport at `/mcp`
 - `stdio` transport for local development
-- no global full-text search across all legal text yet
 
 The MCP server reuses the same shared parsing layer as the web app, so the app
 routes and MCP tools stay in sync.
@@ -105,6 +105,7 @@ https://your-domain.example/mcp
 ### Tool List
 
 - `search_laws`
+- `search_full_text`
 - `resolve_reference`
 - `get_law_info`
 - `get_paragraph`
@@ -187,6 +188,55 @@ Behavior:
 - uses the local generated law directory
 - defaults `limit` to `10`
 - caps `limit` at `25`
+
+#### `search_full_text`
+
+Search the full text of legal documents via the official upstream full-text
+search.
+
+Input:
+
+```json
+{
+  "query": "kaufvertrag",
+  "method": "and",
+  "page": 1
+}
+```
+
+Output shape:
+
+```json
+{
+  "query": "kaufvertrag",
+  "method": "and",
+  "page": 1,
+  "total": 48,
+  "start": 1,
+  "end": 10,
+  "count": 10,
+  "results": [
+    {
+      "law": "bgb",
+      "paragraph": "433",
+      "citation": "BGB § 433",
+      "title": "§ 433 BGB - Einzelnorm",
+      "snippet": "BÜRGERLICHES GESETZBUCH (BGB) § 433 **KAUFVERTRAG** ...",
+      "sourceUrl": "https://www.gesetze-im-internet.de/bgb/__433.html",
+      "canonicalUrl": "https://gesetz.sh/bgb/433",
+      "score": 4
+    }
+  ]
+}
+```
+
+Behavior:
+
+- uses the official `Volltextsuche` endpoint upstream
+- supports `method: "and" | "or"`
+- supports `page` values from `1` to `100`
+- returns normalized `law` and `paragraph` fields when the hit points to a
+  concrete paragraph page
 
 #### `resolve_reference`
 
