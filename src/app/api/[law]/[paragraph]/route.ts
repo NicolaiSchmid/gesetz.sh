@@ -9,8 +9,6 @@ import {
   paragraphRecordToMarkdown,
 } from "@/lib/gesetze/paragraph-source";
 
-export const dynamic = "force-static";
-
 type RouteParams = {
   params: Promise<{
     law: string;
