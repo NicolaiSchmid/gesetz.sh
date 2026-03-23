@@ -7,7 +7,7 @@ A lightning-fast reader for German law built for keyboards, muscle memory, and p
 - **Stay in flow** – hit `⌘K` / `Ctrl+K`, type `bgb§433`, press enter. Done.
 - **Blazing navigation** – `j`/`l` flick through paragraphs, URLs stay tidy (`/hgb/1`).
 - **Readable typography** – cards, contrast, and whitespace focused on the text, not the chrome.
-- **Resilient data** – we proxy through Cloudflare to keep `gesetze-im-internet.de` happy even when it blocks cloud IPs.
+- **Direct upstream access** – the app runs on Cloudflare Workers and fetches legal text directly from `gesetze-im-internet.de`.
 
 ## Quick Start
 
@@ -19,7 +19,7 @@ pnpm install
 pnpm dev
 
 # type-safe production build
-pnpm build && pnpm start
+pnpm build
 ```
 
 ## URL Cheatsheet
@@ -40,11 +40,10 @@ Open the command palette with `⌘K` / `Ctrl+K`. The quick-jump accepts combos l
 
 ## Stack
 
-- **Next.js 15 App Router** – streaming SSR + React 19
+- **TanStack Start on Cloudflare Workers** – worker-native SSR + React 19
 - **Tailwind CSS 4** – custom theme tuned for long-form text
 - **shadcn/ui + lucide** – polished primitive components
-- **tRPC + React Query** – fully typed client/server boundary
-- **Cloudflare Worker proxy** – keeps upstream content reachable from Vercel
+- **MCP over Streamable HTTP** – shared parser and tool surface for agents
 
 ## MCP Server
 
@@ -78,19 +77,12 @@ Start the server locally over `stdio`:
 pnpm mcp
 ```
 
-The server expects the same optional proxy env vars as the web app:
-
-```bash
-GESETZE_PROXY_URL=https://<your-worker-subdomain>.workers.dev
-GESETZE_PROXY_API_KEY=<same key as above>
-```
-
-If those env vars are absent, paragraph fetches go directly to
+The MCP server fetches paragraph content directly from
 `gesetze-im-internet.de`.
 
 ### HTTP Endpoint
 
-The Next.js app also exposes the MCP server over Streamable HTTP at:
+The app also exposes the MCP server over Streamable HTTP at:
 
 ```text
 /mcp
@@ -453,22 +445,8 @@ Important limits:
 What this MCP server does not do yet:
 
 - search across the full text of all paragraphs
-- provide an HTTP MCP endpoint
 - support semantic search
 - fully parse complex legal citations beyond simple `§` references
-
-## Proxy Config (optional but recommended)
-
-1. Deploy the worker in `worker/` with `wrangler deploy` (or connect it via Cloudflare’s GitHub integration).
-2. Set the worker secret `API_KEY` (`wrangler secret put API_KEY`).
-3. In Vercel (and optionally `.env.local`), configure:
-
-```
-GESETZE_PROXY_URL=https://<your-worker-subdomain>.workers.dev
-GESETZE_PROXY_API_KEY=<same key as above>
-```
-
-If the env vars are absent, the app falls back to direct fetches against gesetze-im-internet.de.
 
 ## Contributing
 

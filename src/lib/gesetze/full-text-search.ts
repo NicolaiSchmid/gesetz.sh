@@ -39,17 +39,6 @@ export interface FullTextSearchResponse {
   results: FullTextSearchResult[];
 }
 
-function getProxyConfig() {
-  const url = process.env.GESETZE_PROXY_URL;
-  const apiKey = process.env.GESETZE_PROXY_API_KEY;
-
-  if (!url || !apiKey) {
-    return null;
-  }
-
-  return { url, apiKey };
-}
-
 function normalizeText(value: string): string {
   return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -175,7 +164,6 @@ export async function searchFullText(
 ): Promise<FullTextSearchResponse> {
   const method = options.method ?? "and";
   const page = options.page ?? 1;
-  const proxy = getProxyConfig();
 
   const params = new URLSearchParams({
     config: "Gesamt_bmjhome2005",
@@ -187,16 +175,9 @@ export async function searchFullText(
     params.set("page", String(page));
   }
 
-  const fetchUrl = proxy
-    ? `${proxy.url}/cgi-bin/htsearch?${params.toString()}`
-    : `${DOMAIN}/cgi-bin/htsearch?${params.toString()}`;
+  const fetchUrl = `${DOMAIN}/cgi-bin/htsearch?${params.toString()}`;
 
-  const headers = { ...REQUEST_HEADERS };
-  if (proxy) {
-    headers["X-API-Key"] = proxy.apiKey;
-  }
-
-  const response = await fetch(fetchUrl, { headers });
+  const response = await fetch(fetchUrl, { headers: REQUEST_HEADERS });
   if (!response.ok) {
     throw new Error(`Full-text search failed with status ${response.status}.`);
   }
