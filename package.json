@@ -8,20 +8,19 @@
     "check": "tsc --noEmit",
     "dev": "vite dev --port 3000",
     "deploy": "pnpm build && wrangler deploy",
+    "cf-typegen": "wrangler types",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "mcp": "tsx src/mcp/server.ts",
-    "start": "vite preview",
     "test": "tsx --test src/**/*.test.ts",
     "typecheck": "tsc --noEmit",
     "prebuild": "node scripts/build-law-index.mjs",
     "predev": "node scripts/build-law-index.mjs"
   },
   "dependencies": {
-    "@cloudflare/vite-plugin": "^1.26.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.0",
@@ -52,6 +51,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.26.0",
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.0.15",
     "@types/lodash-es": "^4.17.12",
