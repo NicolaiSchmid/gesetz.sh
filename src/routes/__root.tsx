@@ -19,6 +19,43 @@ export const Route = createRootRoute({
         content:
           "Alle deutschen Gesetze und Verordnungen schnell durchsuchbar. BGB, StGB, HGB und über 6.800 weitere Gesetze mit Keyboard-Navigation.",
       },
+      {
+        name: "keywords",
+        content:
+          "deutsche Gesetze, BGB, StGB, HGB, Grundgesetz, Gesetze online, Rechtsnormen, Verordnungen",
+      },
+      { name: "author", content: "Nicolai Schmid" },
+      { name: "robots", content: "index,follow" },
+      { property: "og:type", content: "website" },
+      { property: "og:locale", content: "de_DE" },
+      { property: "og:url", content: "https://gesetz.sh" },
+      { property: "og:site_name", content: "Gesetz.sh" },
+      {
+        property: "og:title",
+        content: "Gesetz.sh - Deutsche Gesetze schnell durchsuchen",
+      },
+      {
+        property: "og:description",
+        content:
+          "Alle deutschen Gesetze und Verordnungen schnell durchsuchbar. BGB, StGB, HGB und über 6.800 weitere Gesetze.",
+      },
+      {
+        property: "og:image",
+        content: "https://gesetz.sh/opengraph-image",
+      },
+      { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "twitter:title",
+        content: "Gesetz.sh - Deutsche Gesetze schnell durchsuchen",
+      },
+      {
+        name: "twitter:description",
+        content: "Alle deutschen Gesetze und Verordnungen schnell durchsuchbar.",
+      },
+      {
+        name: "twitter:image",
+        content: "https://gesetz.sh/opengraph-image",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

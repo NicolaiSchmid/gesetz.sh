@@ -1,6 +1,4 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-import { ImageResponse } from "next/og";
+import { ImageResponse } from "workers-og";
 import { OG_COLORS, OG_CONTENT_TYPE, OG_IMAGE_SIZE } from "./constants";
 
 export type OGImageProps = {
@@ -10,18 +8,10 @@ export type OGImageProps = {
   subtitle?: string;
 };
 
-/**
- * Generates an Open Graph image with Gesetz.sh branding.
- */
 export async function generateOGImage({
   title,
   subtitle,
-}: OGImageProps): Promise<ImageResponse> {
-  const [headlineFont, bodyFont] = await Promise.all([
-    readFile(join(process.cwd(), "public/og-font-source-serif-4.ttf")),
-    readFile(join(process.cwd(), "public/og-font-source-sans-3.ttf")),
-  ]);
-
+}: OGImageProps): Promise<Response> {
   return new ImageResponse(
     (
       <div
@@ -30,125 +20,99 @@ export async function generateOGImage({
           width: "100%",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: OG_COLORS.background,
+          justifyContent: "space-between",
+          position: "relative",
+          background: OG_COLORS.background,
+          color: OG_COLORS.foreground,
           padding: "60px 80px",
-          fontFamily: "Source Sans 3",
+          fontFamily: "ui-sans-serif, system-ui, sans-serif",
         }}
       >
-        {/* German flag stripe at top */}
         <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
+            top: "0",
+            left: "0",
+            right: "0",
             height: "8px",
             display: "flex",
           }}
         >
-          <div style={{ flex: 1, backgroundColor: OG_COLORS.flag.black }} />
-          <div style={{ flex: 1, backgroundColor: OG_COLORS.flag.red }} />
-          <div style={{ flex: 1, backgroundColor: OG_COLORS.flag.gold }} />
+          <div
+            style={{ display: "flex", flex: 1, background: OG_COLORS.flag.black }}
+          />
+          <div
+            style={{ display: "flex", flex: 1, background: OG_COLORS.flag.red }}
+          />
+          <div
+            style={{ display: "flex", flex: 1, background: OG_COLORS.flag.gold }}
+          />
         </div>
 
-        {/* Header with logo and domain */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            width: "100%",
             marginTop: "20px",
           }}
         >
-          {/* Logo text */}
-          <div
-            style={{
-              fontSize: "32px",
-              fontWeight: 700,
-              color: OG_COLORS.foreground,
-              fontFamily: "Source Sans 3",
-            }}
-          >
+          <div style={{ display: "flex", fontSize: "32px", fontWeight: 700 }}>
             Gesetz.sh
           </div>
-
-          {/* Domain badge */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              backgroundColor: OG_COLORS.foreground,
-              padding: "10px 20px",
+              background: OG_COLORS.foreground,
+              color: OG_COLORS.background,
               borderRadius: "9999px",
+              padding: "10px 20px",
               fontSize: "20px",
               fontWeight: 600,
-              color: OG_COLORS.background,
             }}
           >
             Deutsche Gesetze
           </div>
         </div>
 
-        {/* Main content */}
         <div
           style={{
             display: "flex",
+            flex: 1,
             flexDirection: "column",
             justifyContent: "center",
-            flex: 1,
             gap: "24px",
           }}
         >
-          {/* Large serif title */}
           <div
             style={{
-              fontSize: "72px",
-              fontWeight: 700,
-              fontFamily: "Source Serif 4",
-              color: OG_COLORS.foreground,
-              lineHeight: 1.1,
+              display: "flex",
               maxWidth: "1000px",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              fontSize: "72px",
+              lineHeight: 1.1,
+              fontWeight: 700,
+              fontFamily: "Georgia, ui-serif, serif",
             }}
           >
             {title}
           </div>
-
-          {/* Subtitle (law code + paragraph) */}
-          {subtitle && (
+          {subtitle ? (
             <div
               style={{
+                display: "flex",
                 fontSize: "36px",
-                fontFamily: "Source Sans 3",
-                color: OG_COLORS.muted,
                 fontWeight: 500,
+                color: OG_COLORS.muted,
               }}
             >
               {subtitle}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     ),
-    {
-      ...OG_IMAGE_SIZE,
-      fonts: [
-        {
-          name: "Source Serif 4",
-          data: headlineFont,
-          style: "normal",
-          weight: 700,
-        },
-        {
-          name: "Source Sans 3",
-          data: bodyFont,
-          style: "normal",
-          weight: 400,
-        },
-      ],
-    },
+    OG_IMAGE_SIZE,
   );
 }
 
