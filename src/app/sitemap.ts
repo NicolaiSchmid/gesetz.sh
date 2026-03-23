@@ -7,6 +7,7 @@ import { SOURCE_REVALIDATE_SECONDS } from "@/lib/source-cache";
 const BASE_URL = "https://gesetz.sh";
 const SOURCE_BASE_URL = "https://www.gesetze-im-internet.de";
 const SOURCE_FETCH_TIMEOUT_MS = 10_000;
+const SITEMAP_FETCH_CONCURRENCY = 8;
 const REQUEST_HEADERS: Record<string, string> = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Gesetz.sh Sitemap/1.0 Chrome/120.0.0.0 Safari/537.36",
@@ -85,6 +86,29 @@ async function fetchLawParagraphSlugs(law: string): Promise<string[]> {
   }
 }
 
+async function mapWithConcurrencyLimit<T, R>(
+  items: T[],
+  limit: number,
+  mapper: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+      results[currentIndex] = await mapper(items[currentIndex] as T);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, () => worker()),
+  );
+
+  return results;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { laws } = loadLawDirectory();
   const now = new Date();
@@ -98,11 +122,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const paragraphSlugsByLaw = await Promise.all(
-    laws.map(async (law) => ({
+  const paragraphSlugsByLaw = await mapWithConcurrencyLimit(
+    laws,
+    SITEMAP_FETCH_CONCURRENCY,
+    async (law) => ({
       law: law.code.toLowerCase(),
       paragraphs: await fetchLawParagraphSlugs(law.code),
-    })),
+    }),
   );
 
   const lawPages: MetadataRoute.Sitemap = paragraphSlugsByLaw.flatMap(
