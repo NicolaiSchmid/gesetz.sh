@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { useHotkeys } from "react-hotkeys-hook";
 
 interface KeyboardNavigationProps {
@@ -14,7 +14,7 @@ export default function KeyboardNavigation({
   backward,
   forward,
 }: KeyboardNavigationProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   // Previous paragraph
   useHotkeys(
@@ -24,9 +24,12 @@ export default function KeyboardNavigation({
 
       if (!law || !backward) return;
 
-      void router.push(`/${law}/${backward}`);
+      void navigate({
+        to: "/$law/$paragraph",
+        params: { law, paragraph: backward },
+      });
     },
-    [backward, router],
+    [backward, law, navigate],
   );
 
   // Next paragraph
@@ -37,9 +40,12 @@ export default function KeyboardNavigation({
 
       if (!law || !forward) return;
 
-      void router.push(`/${law}/${forward}`);
+      void navigate({
+        to: "/$law/$paragraph",
+        params: { law, paragraph: forward },
+      });
     },
-    [forward, router],
+    [forward, law, navigate],
   );
 
   return null;

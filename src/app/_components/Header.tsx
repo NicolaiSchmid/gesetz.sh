@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { loadLawDirectory } from "@/lib/law-directory";
 import { CommandPalette } from "./CommandPalette";
 
@@ -10,7 +10,7 @@ export function Header() {
       <div className="mx-auto max-w-5xl px-6">
         <div className="flex items-center justify-between py-5">
           <Link
-            href="/"
+            to="/"
             className="text-xl font-bold tracking-tight text-gray-900 transition-colors hover:text-gray-500"
           >
             Gesetz.sh

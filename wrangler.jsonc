@@ -1,23 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "main": ".open-next/worker.js",
-  "name": "gesetze-app",
-  "compatibility_date": "2025-05-05",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "gesetze-app"
-    }
-  ],
+  "name": "gesetze",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-03-23",
+  "compatibility_flags": ["nodejs_compat"],
   "limits": {
     "cpu_ms": 60000
+  },
+  "observability": {
+    "enabled": true
   }
 }
