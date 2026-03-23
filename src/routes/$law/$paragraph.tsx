@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
 import KeyboardNavigation from "@/app/[law]/[paragraph]/KeyboardNavigation";
 import { Button } from "@/components/ui/button";
@@ -7,10 +8,16 @@ import {
   buildParagraphSourceUrl,
   fetchParagraphRecord,
 } from "@/lib/gesetze/paragraph-source";
+import { buildCanonicalUrl } from "@/lib/gesetze/reference";
 import { SOURCE_REVALIDATE_SECONDS } from "@/lib/source-cache";
 
+const paragraphParamsSchema = z.object({
+  law: z.string().trim().min(1),
+  paragraph: z.string().trim().min(1),
+});
+
 const getParagraph = createServerFn({ method: "GET" })
-  .inputValidator((input: { law: string; paragraph: string }) => input)
+  .inputValidator((input) => paragraphParamsSchema.parse(input))
   .handler(async ({ data }) => {
     const paragraphData = await fetchParagraphRecord(data.law, data.paragraph, {
       revalidateSeconds: SOURCE_REVALIDATE_SECONDS,
@@ -20,17 +27,23 @@ const getParagraph = createServerFn({ method: "GET" })
       law: data.law,
       paragraph: data.paragraph,
       paragraphData,
-      sourceUrl: buildParagraphSourceUrl(data.law, data.paragraph),
+      sourceUrl:
+        paragraphData?.sourceUrl ??
+        buildParagraphSourceUrl(data.law, data.paragraph),
+      canonicalUrl:
+        paragraphData?.canonicalUrl ??
+        buildCanonicalUrl(data.law, data.paragraph),
     };
   });
 
 export const Route = createFileRoute("/$law/$paragraph")({
   loader: async ({ params }) => await getParagraph({ data: params }),
-  head: ({ params }) => {
+  head: ({ loaderData, params }) => {
     const lawUpper = params.law.toUpperCase();
     const title = `${lawUpper} § ${params.paragraph}`;
     const description = `${lawUpper} § ${params.paragraph} - Gesetzestext online lesen auf Gesetz.sh`;
-    const canonicalUrl = `https://gesetz.sh/${params.law}/${params.paragraph}`;
+    const canonicalUrl =
+      loaderData?.canonicalUrl ?? `https://gesetz.sh/${params.law}/${params.paragraph}`;
     const ogImageUrl = `${canonicalUrl}/opengraph-image`;
 
     return {

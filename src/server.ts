@@ -50,6 +50,7 @@ async function handleMarkdownCompatibility(request: Request) {
           "Content-Type": "text/markdown; charset=utf-8",
           "Cache-Control": SOURCE_CDN_CACHE_CONTROL,
           "CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
+          Vary: "Accept",
         },
       },
     );
@@ -61,6 +62,7 @@ async function handleMarkdownCompatibility(request: Request) {
       "Content-Type": "text/markdown; charset=utf-8",
       "Cache-Control": SOURCE_CDN_CACHE_CONTROL,
       "CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
+      Vary: "Accept",
     },
   });
 }

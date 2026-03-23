@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { contentType, generateOGImage } from "@/lib/og";
+import { generateOGImage } from "@/lib/og";
 
 export const Route = createFileRoute("/opengraph-image")({
   server: {
@@ -13,5 +13,3 @@ export const Route = createFileRoute("/opengraph-image")({
     },
   },
 });
-
-void contentType;
