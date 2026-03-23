@@ -20,6 +20,18 @@ const sampleHtml = `
   </html>
 `;
 
+const sampleHtmlWithEntities = `
+  <html>
+    <body>
+      <div class="jnheader">
+        <h1>B&#252;rgerliches Gesetzbuch (BGB)<br /><span class="jnenbez">&#167; 1</span>&#160;<span class="jnentitel">Beginn der Rechtsf&#228;higkeit</span></h1>
+      </div>
+      <div class="jurAbsatz">Die Rechtsf&#228;higkeit des Menschen beginnt mit der Vollendung der Geburt.</div>
+      <div id="blaettern_weiter"><a href="./__2.html">Weiter</a></div>
+    </body>
+  </html>
+`;
+
 void test("parseParagraphHtml extracts headers, content, footnotes, and navigation", () => {
   const record = parseParagraphHtml(sampleHtml, "bgb", "433");
 
@@ -37,4 +49,31 @@ void test("parseParagraphHtml extracts headers, content, footnotes, and navigati
   assert.match(record.content[0]?.markdown ?? "", /\[§ 434\]\(\/bgb\/434\)/);
   assert.equal(record.navigation.previous, "432");
   assert.equal(record.navigation.next, "434");
+});
+
+void test("parseParagraphHtml decodes HTML entities in text and markdown fields", () => {
+  const record = parseParagraphHtml(sampleHtmlWithEntities, "bgb", "1");
+
+  assert.ok(record);
+  assert.equal(
+    record.title,
+    "Bürgerliches Gesetzbuch (BGB) § 1 Beginn der Rechtsfähigkeit",
+  );
+  assert.equal(
+    record.headers[0]?.text,
+    "Bürgerliches Gesetzbuch (BGB) § 1 Beginn der Rechtsfähigkeit",
+  );
+  assert.equal(
+    record.headers[0]?.markdown,
+    "Bürgerliches Gesetzbuch (BGB) § 1 Beginn der Rechtsfähigkeit",
+  );
+  assert.equal(
+    record.content[0]?.text,
+    "Die Rechtsfähigkeit des Menschen beginnt mit der Vollendung der Geburt.",
+  );
+  assert.equal(
+    record.content[0]?.markdown,
+    "Die Rechtsfähigkeit des Menschen beginnt mit der Vollendung der Geburt.",
+  );
+  assert.equal(record.navigation.next, "2");
 });

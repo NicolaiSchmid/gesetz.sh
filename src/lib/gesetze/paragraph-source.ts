@@ -16,6 +16,28 @@ const REQUEST_HEADERS: Record<string, string> = {
 };
 
 const paragraphReferenceRegex = /(§{1,2}|&#167;)\s*(\d+[a-zA-Z]*)/g;
+const namedHtmlEntities: Record<string, string> = {
+  amp: "&",
+  apos: "'",
+  auml: "ä",
+  Auml: "Ä",
+  copy: "©",
+  euro: "€",
+  gt: ">",
+  hellip: "…",
+  lt: "<",
+  mdash: "—",
+  nbsp: "\u00a0",
+  ndash: "–",
+  Ouml: "Ö",
+  ouml: "ö",
+  para: "§",
+  quot: '"',
+  sect: "§",
+  szlig: "ß",
+  Uuml: "Ü",
+  uuml: "ü",
+};
 
 export interface ParagraphFragment {
   html: string;
@@ -64,7 +86,33 @@ export function buildParagraphSourceUrl(law: string, paragraph: string): string 
 }
 
 function normalizeText(value: string): string {
-  return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+  return decodeHtmlEntities(value)
+    .replace(/\u00a0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function decodeHtmlEntities(value: string): string {
+  return value.replace(
+    /&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]+);/g,
+    (entity: string, body: string) => {
+      if (body.startsWith("#x")) {
+        const codePoint = Number.parseInt(body.slice(2), 16);
+        return Number.isNaN(codePoint)
+          ? entity
+          : String.fromCodePoint(codePoint);
+      }
+
+      if (body.startsWith("#")) {
+        const codePoint = Number.parseInt(body.slice(1), 10);
+        return Number.isNaN(codePoint)
+          ? entity
+          : String.fromCodePoint(codePoint);
+      }
+
+      return namedHtmlEntities[body] ?? entity;
+    },
+  );
 }
 
 function htmlFragmentToMarkdown(html: string): string {
@@ -74,17 +122,11 @@ function htmlFragmentToMarkdown(html: string): string {
       .replace(
         /<a\s+[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gi,
         (_match: string, href: string, label: string) =>
-          `[${normalizeText(label)}](${href})`,
+          `[${normalizeText(label)}](${decodeHtmlEntities(href)})`,
       )
       .replace(/<\/?(strong|b)>/gi, "**")
       .replace(/<\/?(em|i)>/gi, "_")
-      .replace(/<[^>]+>/g, "")
-      .replace(/&nbsp;/gi, " ")
-      .replace(/&amp;/gi, "&")
-      .replace(/&quot;/gi, '"')
-      .replace(/&#39;/gi, "'")
-      .replace(/&lt;/gi, "<")
-      .replace(/&gt;/gi, ">"),
+      .replace(/<[^>]+>/g, ""),
   );
 }
 
