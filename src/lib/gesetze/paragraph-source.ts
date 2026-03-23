@@ -6,6 +6,7 @@ import {
   normalizeLawCode,
   normalizeParagraphId,
 } from "./reference";
+import { SOURCE_REVALIDATE_SECONDS } from "../source-cache";
 
 const DOMAIN = "https://www.gesetze-im-internet.de";
 const REQUEST_HEADERS: Record<string, string> = {
@@ -254,9 +255,9 @@ export async function fetchParagraphRecord(
     headers,
   };
 
-  if (typeof options.revalidateSeconds === "number") {
-    requestInit.next = { revalidate: options.revalidateSeconds };
-  }
+  requestInit.next = {
+    revalidate: options.revalidateSeconds ?? SOURCE_REVALIDATE_SECONDS,
+  };
 
   try {
     const response = await fetch(fetchUrl, requestInit);

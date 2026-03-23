@@ -9,8 +9,6 @@ import {
 } from "@/lib/gesetze/paragraph-source";
 import { SOURCE_REVALIDATE_SECONDS } from "@/lib/source-cache";
 
-export const dynamic = "force-static";
-
 type PageParams = {
   law: string;
   paragraph: string;
