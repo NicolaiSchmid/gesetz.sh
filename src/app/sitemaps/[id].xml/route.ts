@@ -4,6 +4,12 @@ import {
 } from "@/lib/source-cache";
 
 export const revalidate = 2592000;
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const chunks = await getSitemapChunks();
+  return chunks.map((_, index) => ({ id: String(index) }));
+}
 
 export async function GET(
   _request: Request,
