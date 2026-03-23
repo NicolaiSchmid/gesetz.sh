@@ -55,10 +55,15 @@ export default {
       });
     }
 
-    // Validate path format to prevent abuse (allow law paths and Teilliste)
+    // Validate path format to prevent abuse (allow law paths, Teilliste, and full-text search)
     const lawPathPattern = /^[a-z0-9_-]+\/__[a-z0-9_-]+\.html$/i;
     const teillistePattern = /^Teilliste_[A-Z1-9]\.html$/;
-    if (!lawPathPattern.test(path) && !teillistePattern.test(path)) {
+    const fullTextSearchPath = /^cgi-bin\/htsearch$/;
+    if (
+      !lawPathPattern.test(path) &&
+      !teillistePattern.test(path) &&
+      !fullTextSearchPath.test(path)
+    ) {
       return new Response(JSON.stringify({ error: "Invalid path format" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
@@ -66,7 +71,7 @@ export default {
     }
 
     try {
-      const targetUrl = `${UPSTREAM_BASE}/${path}`;
+      const targetUrl = `${UPSTREAM_BASE}/${path}${url.search}`;
       const response = await fetch(targetUrl, {
         headers: {
           "User-Agent":

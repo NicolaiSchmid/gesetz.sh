@@ -21,6 +21,7 @@ import {
   fetchParagraphRecord,
   paragraphRecordToMarkdown,
 } from "./gesetze/paragraph-source";
+import { searchFullText } from "./gesetze/full-text-search";
 
 const lawDirectory = loadLawDirectory();
 const aliasEntries = buildLawAliasEntries(lawDirectory.laws);
@@ -48,6 +49,17 @@ const paragraphResultSchema = z.object({
   }),
   sourceUrl: z.string().url(),
   canonicalUrl: z.string().url(),
+});
+
+const fullTextSearchResultSchema = z.object({
+  law: z.string().optional(),
+  paragraph: z.string().optional(),
+  citation: z.string().optional(),
+  title: z.string(),
+  snippet: z.string(),
+  sourceUrl: z.string().url(),
+  canonicalUrl: z.string().url().optional(),
+  score: z.number().int(),
 });
 
 function errorResult(text: string) {
@@ -153,6 +165,68 @@ export function createMcpServer() {
         content: [{ type: "text" as const, text: summary }],
         structuredContent,
       };
+    },
+  );
+
+  server.registerTool(
+    "search_full_text",
+    {
+      title: "Search Full Text",
+      description:
+        "Search across the full text of all legal documents using the official upstream full-text search.",
+      annotations: readOnlyAnnotations("Search Full Text", true),
+      inputSchema: {
+        query: z.string().min(1).describe("Full-text query"),
+        method: z
+          .enum(["and", "or"])
+          .optional()
+          .describe("Whether all words must match or any word may match"),
+        page: z.number().int().min(1).max(100).optional(),
+      },
+      outputSchema: {
+        query: z.string(),
+        method: z.enum(["and", "or"]),
+        page: z.number().int(),
+        total: z.number().int(),
+        start: z.number().int(),
+        end: z.number().int(),
+        count: z.number().int(),
+        results: z.array(fullTextSearchResultSchema),
+      },
+    },
+    async ({ query, method = "and", page = 1 }) => {
+      try {
+        const search = await searchFullText(query, { method, page });
+        const structuredContent = {
+          ...search,
+          count: search.results.length,
+        };
+
+        const summary =
+          search.results.length > 0
+            ? search.results
+                .map((result) =>
+                  [
+                    result.citation ?? result.law?.toUpperCase() ?? result.title,
+                    result.title,
+                    result.snippet,
+                    result.canonicalUrl ?? result.sourceUrl,
+                  ]
+                    .filter(Boolean)
+                    .join("\n"),
+                )
+                .join("\n\n")
+            : `No legal text matched "${query}".`;
+
+        return {
+          content: [{ type: "text" as const, text: summary }],
+          structuredContent,
+        };
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unknown full-text search error.";
+        return errorResult(message);
+      }
     },
   );
 
