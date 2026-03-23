@@ -64,6 +64,7 @@ function extractParagraphSlugs(htmlText: string): string[] {
 async function fetchLawParagraphSlugs(law: string): Promise<string[]> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), SOURCE_FETCH_TIMEOUT_MS);
+  const fallback = ["1"];
 
   try {
     const response = await fetch(buildLawIndexUrl(law), {
@@ -73,14 +74,15 @@ async function fetchLawParagraphSlugs(law: string): Promise<string[]> {
     });
 
     if (!response.ok) {
-      return [];
+      return fallback;
     }
 
     const buffer = await response.arrayBuffer();
     const decoder = new TextDecoder("iso-8859-1");
-    return extractParagraphSlugs(decoder.decode(buffer));
+    const slugs = extractParagraphSlugs(decoder.decode(buffer));
+    return slugs.length > 0 ? slugs : fallback;
   } catch {
-    return [];
+    return fallback;
   } finally {
     clearTimeout(timeoutId);
   }
