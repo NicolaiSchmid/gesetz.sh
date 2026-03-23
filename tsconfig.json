@@ -1,5 +1,5 @@
 {
-  "include": ["**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.js", "vite.config.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts", "**/*.cjs", "**/*.js", "vite.config.ts"],
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,
