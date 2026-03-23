@@ -78,7 +78,10 @@ function getProxyConfig() {
 }
 
 export function buildParagraphSourcePath(law: string, paragraph: string): string {
-  return `${normalizeLawCode(law)}/__${normalizeParagraphId(paragraph)}.html`;
+  const normalizedLaw = normalizeLawCode(law);
+  const normalizedParagraph = normalizeParagraphId(paragraph);
+  const prefix = normalizedParagraph.includes("_") ? "___" : "__";
+  return `${normalizedLaw}/${prefix}${normalizedParagraph}.html`;
 }
 
 export function buildParagraphSourceUrl(law: string, paragraph: string): string {
