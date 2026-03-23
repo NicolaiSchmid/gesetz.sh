@@ -3,7 +3,7 @@ import {
   SOURCE_CDN_CACHE_CONTROL,
 } from "@/lib/source-cache";
 
-export const revalidate = 60 * 60 * 24 * 30;
+export const revalidate = 2592000;
 
 export async function GET(
   _request: Request,
