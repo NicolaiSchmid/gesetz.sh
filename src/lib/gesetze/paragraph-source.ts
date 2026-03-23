@@ -15,7 +15,7 @@ const REQUEST_HEADERS: Record<string, string> = {
   Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
   "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
 };
-const paragraphSourceHrefPattern = /^_{2,}(.+)\.html$/;
+const paragraphSourceHrefPattern = /^(?:\.\/)?_{2,}(.+)\.html$/;
 
 const paragraphReferenceRegex = /(§{1,2}|&#167;)\s*(\d+[a-zA-Z]*)/g;
 const namedHtmlEntities: Record<string, string> = {
@@ -140,7 +140,9 @@ function linkifyParagraphReferences(htmlContent: string, law: string): string {
 function getLinkHref(element: HTMLElement | null): string | undefined {
   if (!element) return undefined;
 
-  const originalLink = element.getAttribute("href");
+  const anchor =
+    element.tagName === "A" ? element : element.querySelector("a[href]");
+  const originalLink = anchor?.getAttribute("href");
   return paragraphSourceHrefPattern.exec(originalLink ?? "")?.[1]?.toLowerCase();
 }
 
@@ -208,14 +210,8 @@ export function parseParagraphHtml(
     content,
     footnotes,
     navigation: {
-      previous: getLinkHref(
-        (html.querySelector("#blaettern_zurueck")
-          ?.firstChild as HTMLElement | null) ?? null,
-      ),
-      next: getLinkHref(
-        (html.querySelector("#blaettern_weiter")
-          ?.firstChild as HTMLElement | null) ?? null,
-      ),
+      previous: getLinkHref(html.querySelector("#blaettern_zurueck")),
+      next: getLinkHref(html.querySelector("#blaettern_weiter")),
     },
     sourcePath: buildParagraphSourcePath(normalizedLaw, normalizedParagraph),
     sourceUrl: buildParagraphSourceUrl(normalizedLaw, normalizedParagraph),

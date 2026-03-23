@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Command as CommandPrimitive } from "cmdk";

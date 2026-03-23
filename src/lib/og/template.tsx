@@ -12,7 +12,7 @@ export async function generateOGImage({
   title,
   subtitle,
 }: OGImageProps): Promise<Response> {
-  return new ImageResponse(
+  const response = new ImageResponse(
     (
       <div
         style={{
@@ -114,6 +114,13 @@ export async function generateOGImage({
     ),
     OG_IMAGE_SIZE,
   );
+
+  response.headers.set(
+    "Cache-Control",
+    "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
+  );
+
+  return response;
 }
 
 /** Re-export size and content type for opengraph-image.tsx files */
