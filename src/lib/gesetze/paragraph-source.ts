@@ -1,7 +1,5 @@
 import { parse, type HTMLElement } from "node-html-parser";
 
-import { env } from "@/env";
-
 import {
   buildCanonicalUrl,
   buildParagraphCitation,
@@ -68,17 +66,6 @@ export interface ParsedParagraphRecord {
 
 export interface ParagraphFetchOptions {
   revalidateSeconds?: number;
-}
-
-function getProxyConfig() {
-  const url = env.GESETZE_PROXY_URL;
-  const apiKey = env.GESETZE_PROXY_API_KEY;
-
-  if (!url || !apiKey) {
-    return null;
-  }
-
-  return { url, apiKey };
 }
 
 export function buildParagraphSourcePath(law: string, paragraph: string): string {
@@ -242,19 +229,12 @@ export async function fetchParagraphRecord(
   options: ParagraphFetchOptions = {},
 ): Promise<ParsedParagraphRecord | null> {
   const sourcePath = buildParagraphSourcePath(law, paragraph);
-  const proxy = getProxyConfig();
-
-  const fetchUrl = proxy ? `${proxy.url}/${sourcePath}` : `${DOMAIN}/${sourcePath}`;
-
-  const headers = { ...REQUEST_HEADERS };
-  if (proxy) {
-    headers["X-API-Key"] = proxy.apiKey;
-  }
+  const fetchUrl = `${DOMAIN}/${sourcePath}`;
 
   const requestInit: RequestInit & {
     next?: { revalidate: number };
   } = {
-    headers,
+    headers: REQUEST_HEADERS,
   };
 
   requestInit.next = {

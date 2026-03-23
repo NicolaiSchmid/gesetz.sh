@@ -26,7 +26,6 @@ export const Route = createFileRoute("/api/$law/$paragraph")({
                 "Content-Type": "text/markdown; charset=utf-8",
                 "Cache-Control": SOURCE_CDN_CACHE_CONTROL,
                 "CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
-                "Vercel-CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
               },
             },
           );
@@ -38,7 +37,6 @@ export const Route = createFileRoute("/api/$law/$paragraph")({
             "Content-Type": "text/markdown; charset=utf-8",
             "Cache-Control": SOURCE_CDN_CACHE_CONTROL,
             "CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
-            "Vercel-CDN-Cache-Control": SOURCE_CDN_CACHE_CONTROL,
           },
         });
       },
