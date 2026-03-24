@@ -26,6 +26,8 @@ dist-ssr
 
 # generated at build time
 /src/generated/
+/public/sitemap.xml
+/public/sitemaps/
 
 # production
 /build
