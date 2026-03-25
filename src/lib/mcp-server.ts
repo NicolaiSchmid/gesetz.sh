@@ -111,6 +111,7 @@ function readOnlyAnnotations(
 ): ToolAnnotations {
   return {
     title,
+    destructiveHint: false,
     readOnlyHint: true,
     idempotentHint: true,
     openWorldHint,
