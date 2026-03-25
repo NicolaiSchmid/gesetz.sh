@@ -7,7 +7,7 @@ export const Route = createFileRoute("/datenschutz")({
       {
         name: "description",
         content:
-          "Datenschutzhinweise fuer Gesetz.sh mit einer knappen Beschreibung der verarbeiteten Daten.",
+          "Datenschutzhinweise für Gesetz.sh mit einer knappen Beschreibung der verarbeiteten Daten.",
       },
     ],
     links: [{ rel: "canonical", href: "https://gesetz.sh/datenschutz" }],
@@ -28,12 +28,12 @@ function PrivacyPage() {
       </div>
 
       <article className="prose prose-gray max-w-none">
-        <h1>Datenschutzerklaerung</h1>
+        <h1>Datenschutzerklärung</h1>
 
         <p>
-          Gesetz.sh ist ein statisches Such- und Nachschlageangebot fuer
-          deutsche Gesetze. Es gibt keine Benutzerkonten, keine Newsletter und
-          keine Kommentarfunktion.
+          Gesetz.sh ist ein statisches Such- und Nachschlageangebot für deutsche
+          Gesetze. Es gibt keine Benutzerkonten, keine Newsletter und keine
+          Kommentarfunktion.
         </p>
 
         <h2>Verantwortlicher</h2>
@@ -47,10 +47,9 @@ function PrivacyPage() {
         <p>
           Beim Aufruf der Website verarbeitet der Hosting-Anbieter technisch
           erforderliche Verbindungsdaten, insbesondere IP-Adresse, Datum und
-          Uhrzeit, aufgerufene URL, uebertragene Datenmenge, Referrer,
-          Browsertyp und Betriebssystem. Die Verarbeitung ist erforderlich, um
-          die Website auszuliefern und die Sicherheit des Betriebs zu
-          gewaehrleisten.
+          Uhrzeit, aufgerufene URL, übertragene Datenmenge, Referrer, Browsertyp
+          und Betriebssystem. Die Verarbeitung ist erforderlich, um die Website
+          auszuliefern und die Sicherheit des Betriebs zu gewährleisten.
         </p>
 
         <h2>Keine Nutzerkonten, keine Tracking-Profile</h2>
@@ -67,10 +66,10 @@ function PrivacyPage() {
           sicheren und stabilen Betrieb dieser Website.
         </p>
 
-        <h2>Empfaenger</h2>
+        <h2>Empfänger</h2>
         <p>
-          Daten koennen durch eingesetzte technische Dienstleister verarbeitet
-          werden, soweit dies fuer Hosting, Auslieferung und Sicherheit der
+          Daten können durch eingesetzte technische Dienstleister verarbeitet
+          werden, soweit dies für Hosting, Auslieferung und Sicherheit der
           Website erforderlich ist.
         </p>
 
@@ -84,9 +83,9 @@ function PrivacyPage() {
         <h2>Ihre Rechte</h2>
         <p>
           Ihnen stehen nach der DSGVO insbesondere Rechte auf Auskunft,
-          Berichtigung, Loeschung, Einschraenkung der Verarbeitung,
-          Datenuebertragbarkeit und Widerspruch zu. Zudem besteht ein
-          Beschwerderecht bei einer Datenschutzaufsichtsbehoerde.
+          Berichtigung, Löschung, Einschränkung der Verarbeitung,
+          Datenübertragbarkeit und Widerspruch zu. Zudem besteht ein
+          Beschwerderecht bei einer Datenschutzaufsichtsbehörde.
         </p>
 
         <h2>Kontakt</h2>

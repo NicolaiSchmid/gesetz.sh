@@ -29,13 +29,9 @@ function LegalNoticePage() {
       <article className="prose prose-gray max-w-none">
         <h1>Impressum</h1>
 
-        <h2>Angaben gemaess § 5 DDG</h2>
+        <h2>Angaben gemäß § 5 DDG</h2>
         <p>
           Nicolai Schmid
-          <br />
-          [Strasse und Hausnummer ergaenzen]
-          <br />
-          [PLZ Ort ergaenzen]
           <br />
           Deutschland
         </p>
@@ -45,12 +41,6 @@ function LegalNoticePage() {
 
         <h2>Inhaltlich verantwortlich</h2>
         <p>Nicolai Schmid</p>
-
-        <h2>Hinweis</h2>
-        <p>
-          Die postalische Anschrift im Impressum muss vor produktivem Betrieb
-          noch vervollstaendigt werden.
-        </p>
       </article>
     </main>
   );
