@@ -107,7 +107,15 @@ function Home() {
       </div>
 
       <footer className="mt-20 border-t border-gray-100 pt-8 text-center text-sm text-gray-400">
-        Daten von gesetze-im-internet.de
+        <div>Daten von gesetze-im-internet.de</div>
+        <div className="mt-3 flex justify-center gap-4">
+          <Link to="/datenschutz" className="hover:text-gray-600">
+            Datenschutz
+          </Link>
+          <Link to="/impressum" className="hover:text-gray-600">
+            Impressum
+          </Link>
+        </div>
       </footer>
     </main>
   );

@@ -13,6 +13,8 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as OpengraphImageRouteImport } from './routes/opengraph-image'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as ImpressumRouteImport } from './routes/impressum'
+import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LawParagraphRouteImport } from './routes/$law/$paragraph'
 import { Route as ApiLawParagraphRouteImport } from './routes/api/$law/$paragraph'
@@ -36,6 +38,16 @@ const OpengraphImageRoute = OpengraphImageRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpressumRoute = ImpressumRouteImport.update({
+  id: '/impressum',
+  path: '/impressum',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatenschutzRoute = DatenschutzRouteImport.update({
+  id: '/datenschutz',
+  path: '/datenschutz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -62,6 +74,8 @@ const LawParagraphOpengraphImageRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
   '/mcp': typeof McpRoute
   '/opengraph-image': typeof OpengraphImageRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -72,6 +86,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
   '/mcp': typeof McpRoute
   '/opengraph-image': typeof OpengraphImageRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -83,6 +99,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
   '/mcp': typeof McpRoute
   '/opengraph-image': typeof OpengraphImageRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -95,6 +113,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/datenschutz'
+    | '/impressum'
     | '/mcp'
     | '/opengraph-image'
     | '/robots.txt'
@@ -105,6 +125,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/datenschutz'
+    | '/impressum'
     | '/mcp'
     | '/opengraph-image'
     | '/robots.txt'
@@ -115,6 +137,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/datenschutz'
+    | '/impressum'
     | '/mcp'
     | '/opengraph-image'
     | '/robots.txt'
@@ -126,6 +150,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DatenschutzRoute: typeof DatenschutzRoute
+  ImpressumRoute: typeof ImpressumRoute
   McpRoute: typeof McpRoute
   OpengraphImageRoute: typeof OpengraphImageRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -162,6 +188,20 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impressum': {
+      id: '/impressum'
+      path: '/impressum'
+      fullPath: '/impressum'
+      preLoaderRoute: typeof ImpressumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/datenschutz': {
+      id: '/datenschutz'
+      path: '/datenschutz'
+      fullPath: '/datenschutz'
+      preLoaderRoute: typeof DatenschutzRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -209,6 +249,8 @@ const LawParagraphRouteWithChildren = LawParagraphRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DatenschutzRoute: DatenschutzRoute,
+  ImpressumRoute: ImpressumRoute,
   McpRoute: McpRoute,
   OpengraphImageRoute: OpengraphImageRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
